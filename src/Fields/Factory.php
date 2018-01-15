@@ -25,8 +25,18 @@ class Factory implements FactoryContract
         'imageSingle' => ImageSingle::class,
         'wysiwyg' => Wysiwyg::class,
         'manyToManySelect' => ManyToManySelect::class,
-        'seo' => Seo::class,
-        'readability' => Readability::class,
+        'model' => Model::class,
+        'fk' => Fk::class,
+        'buddy_type' => BuddyType::class,
+        'buddy_type_only' => BuddyTypeOnly::class,
+        'versions' => Versions::class,
+        'cloud' => Cloud::class,
+        'nested' => Nested::class,
+        'image' => Image::class,
+        'video' => Video::class,
+        'daystoweeks' => DaysToWeeks::class,
+        'questionnaire_answers' => QuestionnaireAnswers::class,
+        'gender' => Gender::class,
     ];
 
     /**
@@ -56,10 +66,14 @@ class Factory implements FactoryContract
             throw new \Exception($this->fields[$type].' must be instance of '.Field::class);
         }
 
+        
+        if ($parent) {
+            $instance->parent = $parent;
+        }        
+
         if (method_exists($instance, 'setModel')) {
             $instance->setModel($model);
         }
-
         return $instance;
     }
 

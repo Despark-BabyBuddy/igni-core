@@ -1,13 +1,22 @@
+<?php
+
+    $options = $field->getOptions();
+    $fieldname = $options['field'];
+    $avatar = $field->getModel()->avatar_url();
+    $original = $field->getModel()->avatar_url();
+    $filename = $field->getModel()->{$fieldname}; 
+
+?>
 {{-- Image --}}
 <div class="form-group {{ $errors->has($fieldName) ? 'has-error' : '' }}">
     {!! Form::label($elementName, $options['label']) !!}
-
-    @if($image = $record->imageFileByOrientation($options['orientation']))
-        <div class="form-group">
-            {!! Html::image($record->getAdminImageFile($image, $options['orientation']), null,['width' => $record->getAdminDimensions($options['orientation'], 'w'), 'height' => $record->getAdminDimensions($options['orientation'], 'h')]) !!}
-        </div>
+    <br>
+    @if ($field->getValue())
+        <a href="{{ $original }}">
+            <img src="{{ $avatar  }}">
+        </a>
+        <br>
     @endif
-
     {!! Form::file($elementName,  [
         'id' => $elementName,
         'class' => "form-control",
@@ -16,8 +25,4 @@
 
     <div>{{ $options['help'] or '' }}</div>
 
-    {!! Form::hidden('image_orientation['.$fieldName.']', $options['orientation']) !!}
-    <div class="text-red">
-        {{ join($errors->get($fieldName), '<br />') }}
-    </div>
 </div>

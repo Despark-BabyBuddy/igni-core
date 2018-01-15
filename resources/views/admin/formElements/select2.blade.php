@@ -1,5 +1,8 @@
+<?php $field->getValue() ?>
 <div class="form-group {{ $errors->has($fieldName) ? 'has-error' : '' }}">
     {!! Form::label($fieldName, $field->getLabel()) !!}
+    <br>
+
     {!! Form::select($fieldName, $field->getSelectOptions(), $field->getValue(), $field->getAttributes()) !!}
     @if($field->getHelp())
         <p class="help-text">

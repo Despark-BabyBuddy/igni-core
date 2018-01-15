@@ -75,6 +75,7 @@ class Sidebar
 
     public function __toString()
     {
+
         return $this->toHtml();
     }
 

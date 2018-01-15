@@ -6,7 +6,7 @@
     <title>{{ config('ignicms.projectName') }} - @yield('pageTitle', 'Home') </title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 
-    <link rel="stylesheet" href="{{ asset('/css/admin.css') }}" media="screen" charset="utf-8">
+    <link rel="stylesheet" href="{{ asset('/css/admin.css', 1) }}" media="screen" charset="utf-8">
 
     <meta name="_token" content="{{ app('Illuminate\Encryption\Encrypter')->encrypt(csrf_token()) }}"/>
 

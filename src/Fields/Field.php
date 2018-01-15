@@ -111,6 +111,7 @@ abstract class Field implements FieldContract
         return $this;
     }
 
+
     /**
      * @return array|mixed
      */
@@ -124,6 +125,28 @@ abstract class Field implements FieldContract
         }
 
         $a['id'] = array_get($a, 'id') ?? $this->getElementName();
+
+        return $a;
+    }    
+
+
+    /**
+     * @return array|mixed
+     */
+    public function getChildrenAttributes($id, $title, $addClass = Array(), $node = 'children')
+    {
+        $attributes = isset($this->options['attributes']) ? $this->options['attributes'] : [];
+        $a = array_merge_recursive(['class' => ['form-control']], $attributes);
+        
+        if($addClass) $a['class'] = array_merge_recursive($a['class'], $addClass);
+        
+        if (isset($a['class']) && is_array($a['class'])) {
+            $a['class'] = implode(' ', $a['class']);
+        }
+
+        $a['id'] = uniqid();
+
+        $a['name'] = "{$node}[{$id}][{$title}]";
 
         return $a;
     }
@@ -311,4 +334,9 @@ abstract class Field implements FieldContract
     {
         return $this->getOptions('elementName', $this->getFieldName());
     }
+
+    public function afterRender() {
+        
+    }
+
 }

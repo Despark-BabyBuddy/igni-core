@@ -12,6 +12,9 @@ class Custom extends Field
      */
     protected $template;
 
+
+    public $parent;
+
     /**
      * @var
      */
@@ -44,7 +47,6 @@ class Custom extends Field
         if (! isset($options['template'])) {
             throw new \Exception('Template is required for field '.$fieldName);
         }
-
         if (isset($options['template']) && \View::exists($options['template'])) {
             $this->template = $options['template'];
         }

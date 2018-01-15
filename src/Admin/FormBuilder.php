@@ -49,6 +49,7 @@ class FormBuilder
     public function renderInput($view)
     {
         // First check if there isn't a model view.
+
         $viewName = 'ignicms::admin.formElements.'.$view;
         if ($this->model instanceof AdminModel && $identifier = $this->model->getIdentifier()) {
             // First check if there is a rewrite on specific field type
@@ -71,6 +72,7 @@ class FormBuilder
 
     public function field($model, $fieldName, $options, $elementName = null)
     {
+
         $field = $fieldName;
         $options['elementName'] = $elementName;
 

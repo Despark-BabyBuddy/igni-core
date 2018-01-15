@@ -92,6 +92,7 @@ class Select2 extends Select
     {
         $defaultConfig = [
             'tags' => false,
+            'width' => '100%',
             'placeholder' => $this->getOptions('attributes')['placeholder'],
         ];
         if ($this->isAjax()) {

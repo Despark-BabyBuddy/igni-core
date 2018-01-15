@@ -6,18 +6,13 @@
     'enctype'=> $form->getEnctype() ?? 'multipart/form-data', ]
 ) !!}
 
-{!! $form->renderFields() !!}
+{!! $form->renderFields() !!} 
 
-<button type="submit" class="btn btn-primary" value="save" name="submit">Save</button>
-<button type="submit" class="btn btn-primary" value="save-and-add" name="submit">Save and Add New</button>
+<button type="submit" class="btn btn-primary" onclick="$(this).hide()">Save</button>
 
 <?php $resourceConfig = $controller->getResourceConfig() ?>
-@if(isset($resourceConfig['parentModel']) AND $foreignKeyValue = request()->query($resourceConfig['parentModel']['foreignKey']))
-   <a href="{{ route($resourceConfig['id'].'.index').'?'.$resourceConfig['parentModel']['foreignKey'].'='.$foreignKeyValue }}" class="back-to-filtered-listing">Back to listing</a> 
-
-   {!! Form::hidden('parent_model', '?'.$resourceConfig['parentModel']['foreignKey'].'='.$foreignKeyValue) !!}
+@if(isset($resourceConfig['parentModel']) AND request()->has($resourceConfig['parentModel']['foreignKey']))
+   <a href="{{ route($resourceConfig['id'].'.index').'?'.$resourceConfig['parentModel']['foreignKey'].'='.request()->query($resourceConfig['parentModel']['foreignKey']) }}" class="back-to-filtered-listing">Back to listing</a> 
 @endif
 {{-- {!! $record->adminPreviewButton() !!} --}}
-
-
 {!! Form::close() !!}

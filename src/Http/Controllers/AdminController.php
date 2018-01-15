@@ -15,6 +15,8 @@ use Illuminate\Routing\Controller as BaseController;
 use View;
 use Yajra\DataTables\Contracts\DataTable;
 use Yajra\DataTables\DataTables;
+use Despark\Helpers\DesparkEncryptor;
+
 
 /**
  * Class AdminController.
@@ -103,8 +105,10 @@ abstract class AdminController extends BaseController
      */
     public function index()
     {
+
         $request = app(Request::class);
         if ($request->ajax()) {
+
             $dataTable = app(DataTables::class);
             $dataTableEngine = $dataTable->eloquent($this->prepareModelQuery($request));
 
@@ -126,14 +130,31 @@ abstract class AdminController extends BaseController
                 }
             }
 
+            if($this->model instanceof \Despark\Model\User) {
+                
+                
+                $requestColumns = $request->only("columns")['columns'];
+                $output = Array();
+                foreach($request->only("columns")['columns'] as $c) {
+                    if(
+                            in_array($c['name'], ['email', 'name'])
+                            AND $c['search']['value'] <> ""
+                        )
+                        $c['search']['value'] = DesparkEncryptor::encrypt($c['search']['value']);
+
+                    $output[] = $c;
+                }
+
+                $request->merge(['columns' => $output]);
+            }
+           	//print_r($request->all());die();
             $this->prepareDataTable($request, $dataTableEngine);
 
             return $dataTableEngine->make(true);
         }
 
         $this->viewData['model'] = $this->model;
-
-        return view('ignicms::admin.layouts.list', $this->viewData);
+        return view($this->getListView(), $this->viewData);
     }
 
     /**
@@ -202,6 +223,8 @@ abstract class AdminController extends BaseController
             $query->select($table.'.*');
         }
 
+        $this->postQueryBuilder($query);
+
         return $query;
     }
 
@@ -220,6 +243,7 @@ abstract class AdminController extends BaseController
      */
     public function edit($id)
     {
+        $baby_model = new \App\Models\Baby;
         $this->viewData['form'] = \Entity::getForm($this->model->findOrFail($id));
 
         return view($this->defaultFormView, $this->viewData);
@@ -282,7 +306,6 @@ abstract class AdminController extends BaseController
                 }
             }
         }
-
         return $this->dataTableColumns;
     }
 
@@ -294,22 +317,16 @@ abstract class AdminController extends BaseController
     protected function getActionButtons($record)
     {
         $buttons = [];
-        $queryString = '';
-
-        $parentModelForeignKey = array_get($this->resourceConfig, 'parentModel.foreignKey');
-
-        if ($parentModelForeignKey AND $foreignKeyValue = request()->query($parentModelForeignKey)) {
-            $queryString .= '?'.$parentModelForeignKey.'='.$foreignKeyValue;
-        }
+        $queryString = str_replace(request()->url(), '', request()->fullURL());
 
         if (isset($this->viewData['editRoute'])) {
             $buttons[] = '<a href="'.route($this->viewData['editRoute'],
-                    ['id' => $record->{$this->model->getKeyName()}]).$queryString.'" class="btn btn-primary">'.trans('ignicms::admin.edit').'</a>';
+                    ['id' => $record->id]).$queryString.'" class="btn btn-primary">'.trans('ignicms::admin.edit').'</a>';
         }
 
         if (isset($this->viewData['destroyRoute'])) {
             $buttons[] = '<a href="#"  class="js-open-delete-modal btn btn-danger"
-                    data-delete-url="'.route($this->viewData['destroyRoute'], ['id' => $record->{$this->model->getKeyName()}]).$queryString.'">
+                    data-delete-url="'.route($this->viewData['destroyRoute'], ['id' => $record->id]).$queryString.'">
                     '.trans('ignicms::admin.delete').'
                 </a>';
         }
@@ -341,13 +358,7 @@ abstract class AdminController extends BaseController
      */
     public function getDataTablesAjaxUrl()
     {
-        $queryString = '';
-
-        $parentModelForeignKey = array_get($this->resourceConfig, 'parentModel.foreignKey');
-
-        if ($parentModelForeignKey AND $foreignKeyValue = request()->query($parentModelForeignKey)) {
-            $queryString .= '?'.$parentModelForeignKey.'='.$foreignKeyValue;
-        }
+        $queryString = str_replace(request()->url(), '', request()->fullURL());
 
         return route($this->getResourceConfig()['id'].'.index').$queryString;
     }
@@ -436,4 +447,24 @@ abstract class AdminController extends BaseController
     {
         return app(Sidebar::class);
     }
+
+    /*
+     *  Blow-trough function for controller-specific
+     *  queries
+     */
+
+    public function postQueryBuilder($query) {
+        return $query;
+    }    
+
+    /*
+     *  Blow-trough function for controller-specific
+     *  list views
+     */
+
+    public function getListView() {
+        return 'ignicms::admin.layouts.list';
+    }
+
+
 }

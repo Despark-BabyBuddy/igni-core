@@ -198,9 +198,9 @@ class ResourceCompiler
             ],
         ],
     ],";
-            $this->entitiesReplacements[':image_upload'] = "'image' => [
-            'type' => 'imageSingle',
-            'label' => 'Image',
+        $this->entitiesReplacements[':image_upload'] = "'image' => [       
+            'type' => 'imageSingle',       
+            'label' => 'Image',        
         ],";
         }
 

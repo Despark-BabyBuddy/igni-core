@@ -3,12 +3,15 @@
 namespace Despark\Cms\Http\Controllers;
 
 use Despark\Cms\Http\Requests\UserRequest;
+use Despark\Model\User;
 use Despark\Cms\Http\Requests\UserUpdateRequest;
 use Illuminate\Http\Request;
 use Response;
 
 class UsersController extends AdminController
 {
+
+    
     /**
      * Show the form for creating a new resource.
      *
@@ -17,7 +20,7 @@ class UsersController extends AdminController
     public function create()
     {
         $this->viewData['form'] = \Entity::getForm($this->model);
-
+        
         return view($this->defaultFormView, $this->viewData);
     }
 
@@ -28,8 +31,10 @@ class UsersController extends AdminController
      *
      * @return Response
      */
-    public function store(UserRequest $request)
+    public function stor2e(UserRequest $request)
     {
+
+
         $input = $request->except('roles');
 
         if ($request->has('password')) {
@@ -39,9 +44,10 @@ class UsersController extends AdminController
         }
 
         $record = $this->model->create($input);
-        foreach ($this->model->getManyToManyFields() as $metod => $array) {
-            $record->$metod()->sync($request->get($array, []));
-        }
+
+        foreach ($this->model->getManyToManyFields() as $metod => $array) {     
+            $record->$metod()->sync($request->get($array, []));        
+        }        
 
         if ($request->has('roles')) {
             $record->syncRoles($request->roles);
@@ -66,26 +72,30 @@ class UsersController extends AdminController
      */
     public function update(UserUpdateRequest $request, $id)
     {
+       
+        
         $input = $request->except('roles');
 
-        if ($request->has('password')) {
-            $input['password'] = bcrypt($request->password);
-        } else {
+        
+        if ($request->has('password')) 
+            $input['password'] =  \Hash::make($input['password']);
+        else
             unset($input['password']);
-        }
 
         $record = $this->model->findOrFail($id);
+
 
         if ($request->has('roles')) {
             $record->syncRoles($request->roles);
         }
 
-        foreach ($this->model->getManyToManyFields() as $metod => $array) {
-            $record->$metod()->sync($request->get($array, []));
+        foreach ($this->model->getManyToManyFields() as $metod => $array) {        
+            $record->$metod()->sync($request->get($array, []));        
         }
 
         $record->update($input);
 
+        //dd($record);
         $this->notify([
             'type' => 'success',
             'title' => 'Successful update!',

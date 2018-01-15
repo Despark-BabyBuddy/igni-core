@@ -37,6 +37,12 @@ class EntityServiceProvider extends ServiceProvider
             return $entityManager;
         });
 
+
+        \Route::get(
+                'dailyinfo/newversion', 
+                'App\Http\Controllers\Admin\DailyInfosController@newversion'
+            )->name('dailyinfo.newversion');
+
         $this->app->singleton(Sidebar::class, function ($app) {
             $entityManager = $app->make(\Despark\Cms\Resource\EntityManager::class);
 

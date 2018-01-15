@@ -1,4 +1,5 @@
 {{-- Image --}}
+
 <div class="form-group {{ $errors->has($fieldName) ? 'has-error' : '' }}">
     {!! Form::label($elementName, $field->getLabel()) !!}
     @if($field->getModel()->hasImages($fieldName))
@@ -8,10 +9,7 @@
                     @if (pathinfo($image->getOriginalImagePath('original'), PATHINFO_EXTENSION) === 'svg')
                         {!! Html::image($image->getOriginalImagePath('original'), $image->alt, ['title' => $image->title]) !!}
                     @else
-                        @php 
-                            $imgTag = Html::image($image->getOriginalImagePath('admin'), $image->alt, ['title' => $image->title]);
-                        @endphp
-                        {!! ($field->getOptions('previewLink') === true) ? '<a href="'.asset($image->getSourceImagePath()).'" target="_blank">'.$imgTag.'</a>' : $imgTag !!}
+                        {!! Html::image($image->getOriginalImagePath('admin'), $image->alt, ['title' => $image->title]) !!}
                     @endif
                 </div>
                 {!! $field->getModel()->getImageMetaFieldsHtml($fieldName, $image) !!}
@@ -24,7 +22,7 @@
             </label>
         </div>
     @endif
-    
+
     {!! Form::file($elementName,  [
         'id' => $elementName,
         'class' => "form-control",

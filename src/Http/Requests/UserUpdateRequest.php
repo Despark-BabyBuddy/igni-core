@@ -11,6 +11,7 @@ class UserUpdateRequest extends UserRequest
      */
     public function rules()
     {
+        
         $rules = $this->model->getRulesUpdate();
         $rules['email'] = str_replace('{id}', $this->route()->parameter('user'), $rules['email']);
 

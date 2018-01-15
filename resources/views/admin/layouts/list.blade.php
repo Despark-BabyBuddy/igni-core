@@ -3,15 +3,6 @@
 @section('pageTitle', $pageTitle)
 
 @section('content')
-
-@php 
-    $resourceConfig = $controller->getResourceConfig();
-    $isFilteredByForeignKey = false;
-
-    if(isset($resourceConfig['parentModel']) AND request()->has($resourceConfig['parentModel']['foreignKey'])) {
-        $isFilteredByForeignKey = true;
-    }
-@endphp
     <div class="row">
         <div class="col-xs-12">
             <div class="box">
@@ -28,7 +19,7 @@
                 <div class="box-body">
                     <div id="data-table_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
                         @if(isset($createRoute))
-                            <a href="{{ route($createRoute) }}<?=($isFilteredByForeignKey ? '?'.$resourceConfig['parentModel']['foreignKey'].'='.request()->query($resourceConfig['parentModel']['foreignKey']) : '')?>"
+                            <a href="{{ route($createRoute) }}"
                                class="btn btn-success pull-left">+ {{ trans('ignicms::admin.add') }} {{ $pageTitle }}</a>
                         @endif
                         
@@ -50,7 +41,10 @@
                             </div>
                         </div>
 
-                        @if($isFilteredByForeignKey)
+                        @php 
+                            $resourceConfig = $controller->getResourceConfig();
+                        @endphp
+                        @if(isset($resourceConfig['parentModel']) AND request()->has($resourceConfig['parentModel']['foreignKey']))
                            <a href="{{ route($resourceConfig['parentModel']['listingButtonRoute'], request()->query($resourceConfig['parentModel']['foreignKey'])) }}" class="btn btn-primary pull-left parent-model-btn">{{ $resourceConfig['parentModel']['listingButtonLabel'] }}</a> 
                         @endif
                     </div>
@@ -169,13 +163,6 @@
     });
 
     var isSortable = $('th.sort').length === 0;
-    var orderColumns = [];
-
-    @if($sortColumns = array_get($resourceConfig, 'adminColumnsSort'))
-        @foreach($sortColumns as $columnIndex => $sortType)
-            orderColumns.push([<?=$columnIndex?>, '<?=$sortType?>']);
-        @endforeach
-    @endif
 
     var table = $('#data-table').DataTable({
         paging: isSortable !== false,
@@ -183,8 +170,7 @@
         lengthChange: false,
         searching: true,
         ordering: isSortable !== false,
-        order: orderColumns,
-        info: false,
+        info: true,
         autoWidth: true,
         processing: true,
         serverSide: true,
@@ -217,7 +203,7 @@
             {
                 targets: "no-sort",
                 orderable: false,
-                searchable: false
+                searchable: true
             }
         ],
         aaSorting: [],
@@ -225,5 +211,40 @@
             sSearch: "<span class='search-label uppercase'>Search</span>"
         }
     });
+
+    $('#data-table thead th').each( function () {
+
+        if($(this).html() != 'Actions') 
+            $(this).html( $(this).html() + '<br><input class="form-control input-sm" type="text" placeholder="Search " />' );
+    });
+
+    table.columns().every( function () {
+        var column = this;
+
+        $( 'input', this.header() ).on( 'blur', function () {
+
+            column
+                .search( this.value )
+                .draw();
+            }).on("click", function() 
+            {
+                    return false;
+
+            }).on("keypress", function (e) {
+
+                    if(e.which === 13) {
+                        column
+                            .search( this.value )
+                            .draw();
+                        return false;
+                    }
+            
+            });
+        
+        });
+
+        $("input", )
+
+
 </script>
 @endpush

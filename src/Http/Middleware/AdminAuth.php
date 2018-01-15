@@ -21,7 +21,7 @@ class AdminAuth
             return $this->unauthenticatedResponse($request);
         }
 
-        if (!Auth::guard($guard)->user()->is_admin) {
+        if (!Auth::guard($guard)->user()) {
             return $this->unauthenticatedResponse($request);
         }
 

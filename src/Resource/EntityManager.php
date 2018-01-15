@@ -238,13 +238,14 @@ class EntityManager
             $classMethods = get_class_methods($config['controller']) ?? [];
             // Get the implementing controller and check for rewritten routes
             $methods = array_intersect($classMethods, $availableMethods);
-            
+
             if (! empty($methods)) {
                 // If all routes are rewritten we use the config one
                 if (count($methods) == count($availableMethods)) {
                     \Route::resource($resource, $config['controller'], [
                         'names' => build_resource_backport($resource),
                     ]);
+
                 } else {
                     \Route::resource($resource, $config['controller'], [
                         'only' => $methods,
@@ -261,7 +262,10 @@ class EntityManager
             }
 
             $this->addRoutes($resource, build_resource_backport($resource));
-        }
+
+
+        } 
+
     }
 
     /**
@@ -300,7 +304,6 @@ class EntityManager
         $method = $model->exists ? 'PUT' : 'POST';
         $actionVerb = $model->exists ? 'update' : 'store';
         $attributes = $model->getKey() ? ['id' => $model->getKey()] : [];
-
         $action = $this->getFormAction($model, $actionVerb, $configId, $attributes);
 
         $translatable = ($model instanceof Translatable) ? $model->getTranslatable() : null;
@@ -329,11 +332,20 @@ class EntityManager
                 } else {
                     $value = $model->getOriginal($field);
                 }
-
                 $data = compact('options', 'value', 'field', 'model');
-                $fieldInstances->push(\Field::make($data));
+                $data['parent'] = $model;
+                $fieldModel = \Field::make($data);
+                /*  If you want to attach the parent model 
+                    to the field, declare a public $parent
+                    property in the src\Fields\ model
+                */
+
+                $fieldModel->afterRender();
+
+                $fieldInstances->push($fieldModel);
             }
         }
+
 
         event(new AfterFieldsMake($fieldInstances, $model));
 

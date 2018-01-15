@@ -6,7 +6,9 @@
         <!-- mini logo for sidebar mini 50x50 pixels -->
         <span class="logo-mini">{{ config('ignicms.projectName')[0] }}</span>
         <!-- logo for regular state and mobile devices -->
-        <span class="logo-lg">{{ config('ignicms.projectName') }} Administration</span>
+        <span class="logo-lg" style="height:50px">
+            <img src="/img/baby-buddy.svg" height="100%">
+        </span>
     </a>
 
     <!-- Header Navbar -->

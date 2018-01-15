@@ -13,7 +13,6 @@
     <![endif]-->
     @include('ignicms::admin.assets.css')
     @stack('additionalStyles')
-    <link rel="shortcut icon" href="{{ asset(config('ignicms.favicon')) }}">
 </head>
 <body class="skin-blue sidebar-mini">
 <div class="wrapper">

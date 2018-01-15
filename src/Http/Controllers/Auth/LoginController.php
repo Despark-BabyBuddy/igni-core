@@ -5,6 +5,7 @@ namespace Despark\Cms\Http\Controllers\Auth;
 use Illuminate\Http\Request;
 use Despark\Cms\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Despark\Helpers\DesparkEncryptor;
 
 class LoginController extends Controller
 {
@@ -45,6 +46,12 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
+
+        $request->merge(['email' => DesparkEncryptor::encrypt($request->email)]);
+        //$request->merge(['password' => '%756Ij9rk2{}X|h']); //TODO
+
+
+        //dd($request);
         $this->validateLogin($request);
 
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
@@ -62,7 +69,9 @@ class LoginController extends Controller
         $user = \Auth::getProvider()->retrieveByCredentials($credentials);
 
         // We trigger two request to database, maybe we need custom auth provider.
-        if ($user && $user->is_admin) {
+        //if ($user && $user->is_admin) { TODO
+        if ($user) {
+
             if ($this->attemptLogin($request)) {
                 return $this->sendLoginResponse($request);
             }

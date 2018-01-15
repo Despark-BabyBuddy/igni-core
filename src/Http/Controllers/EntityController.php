@@ -28,31 +28,29 @@ class EntityController extends AdminController
      */
     public function store(AdminFormRequest $request)
     {
+
         $input = $request->all();
+
 
         if ($this->model instanceof Translatable) {
             $this->model->setActiveLocale($input['locale']);
         }
-        $record = $this->model->create($input);
-        if (method_exists($this->model, 'getManyToManyFields')) {
-            foreach ($this->model->getManyToManyFields() as $metod => $array) {
-                $record->$metod()->sync($request->get($array, []));
-            }
-        }
+        
+        $record = $this->model->set($input);
+        //$record = $this->model->create($input);
 
+        foreach ($this->model->getManyToManyFields() as $metod => $array) {        
+            $record->$metod()->sync($request->get($array, []));        
+        }
+        
+
+        $this->model->save();
         $this->notify([
             'type' => 'success',
             'title' => 'Successful create!',
             'description' => $this->getResourceConfig()['name'].' is created successfully!',
         ]);
-
-        $redirectRoute = route($this->getResourceConfig()['id'].'.edit', ['id' => $record->{$this->model->getKeyName()}]);
-
-        if (array_get($input, 'submit') == 'save-and-add') {
-            $redirectRoute = route($this->getResourceConfig()['id'].'.create');
-        }
-
-        return redirect($redirectRoute.(array_get($input, 'parent_model') ? array_get($input, 'parent_model') : ''));
+        return redirect(route($this->getResourceConfig()['id'].'.edit', ['id' => $record->id]));
     }
 
     /**
@@ -71,25 +69,21 @@ class EntityController extends AdminController
             $this->model->setActiveLocale($input['locale']);
         }
 
+
         $record = $this->model->findOrFail($id);
 
         $record->update($input);
 
-        if (method_exists($this->model, 'getManyToManyFields')) {
-            foreach ($this->model->getManyToManyFields() as $metod => $array) {
-                $record->$metod()->sync($request->get($array, []));
-            }
-        }
 
+        foreach ($this->model->getManyToManyFields() as $metod => $array) {     
+            $record->$metod()->sync($request->get($array, []));        
+        }
+        
         $this->notify([
             'type' => 'success',
             'title' => 'Successful update!',
             'description' => $this->getResourceConfig()['name'].' is updated successfully.',
         ]);
-
-        if (array_get($input, 'submit') == 'save-and-add') {
-            return redirect(route($this->getResourceConfig()['id'].'.create').(array_get($input, 'parent_model') ? array_get($input, 'parent_model') : ''));
-        }
 
         return redirect()->back();
     }

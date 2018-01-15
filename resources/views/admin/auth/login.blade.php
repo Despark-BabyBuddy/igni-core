@@ -10,7 +10,7 @@
         </div>
 
         <div class="login-box-body">
-            <form action="{{ url('/admin/login') }}" method="post">
+            <form action="{{ asset('/admin/login', 1) }}" method="post">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
                 <div class="form-group">

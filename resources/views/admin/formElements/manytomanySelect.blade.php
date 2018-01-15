@@ -1,4 +1,6 @@
-<div class="form-group {{ $errors->has($field->getOptions('validateName')) ? 'has-error' : '' }}">
+<?php
+
+?><div class="form-group {{ $errors->has($field->getOptions('validateName')) ? 'has-error' : '' }}">
     <label for="{{ $fieldName }}">{{ $field->getLabel() }}</label>
     <select 
         id="{{ $fieldName }}" 

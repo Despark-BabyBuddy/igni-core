@@ -54,6 +54,7 @@ class Form
      */
     public function make($config)
     {
+        
         foreach ($config as $key => $item) {
             if (property_exists($this, $key)) {
                 // Todo set this from method

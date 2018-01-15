@@ -77,7 +77,7 @@ class ManyToManySelect extends Field
     public function getRelationMethod()
     {
         $relationMethod = $this->getOptions('relationMethod');
-
+        
         return $this->model->$relationMethod;
     }
 }

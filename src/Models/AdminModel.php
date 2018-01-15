@@ -146,7 +146,7 @@ abstract class AdminModel extends Model
                 }
             }
         }
-
+        
         return parent::fill($attributes);
     }
 
@@ -293,4 +293,6 @@ abstract class AdminModel extends Model
 
         return config('ignicms.igniTablesPrefix') ? config('ignicms.igniTablesPrefix').'_'.$table : $table;
     }
+
+    function getManyToManyFields() { return Array(); }
 }
