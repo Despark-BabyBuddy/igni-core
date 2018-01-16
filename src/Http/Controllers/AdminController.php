@@ -461,9 +461,9 @@ abstract class AdminController extends BaseController
      *  Blow-trough function for controller-specific
      *  list views
      */
-
-    public function getListView() {
-        if ($this->model->isSortable()) {
+    public function getListView()
+    {
+        if (method_exists($this->model, 'isSortable')) {
             return 'ignicms::admin.layouts.sortableList';
         }
 
