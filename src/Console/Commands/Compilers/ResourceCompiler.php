@@ -188,6 +188,10 @@ class ResourceCompiler
 
         $this->entitiesReplacements[':actions'] = implode(', ', $actions);
 
+        if ($this->options['reordering']) {
+            $this->entitiesReplacements[':sortable'] = 'sortable => []';
+        }
+
         if ($this->options['image_uploads']) {
             $this->entitiesReplacements[':image_fields'] = "'image_fields' => [
         'image' => [
