@@ -122,7 +122,7 @@ class ResourceCompiler
             $this->modelReplacements[':translatable'] = 'protected $translatable = [];';
         }
 
-        if ($this->options['sortable']) {
+        if ($this->options['reordering']) {
             $this->modelReplacements[':uses'][] = SortableTrait::class;
             $this->modelReplacements[':traits'][] = class_basename(SortableTrait::class);
             $this->modelReplacements[':sortable'] = 'protected static $sortableField = [];';
