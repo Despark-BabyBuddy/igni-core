@@ -146,7 +146,7 @@ abstract class AdminModel extends Model
                 }
             }
         }
-        
+
         return parent::fill($attributes);
     }
 
@@ -295,4 +295,14 @@ abstract class AdminModel extends Model
     }
 
     function getManyToManyFields() { return Array(); }
+
+    /**
+     * Check if the class has sortable property which is not empty.
+     *
+     * @return boolean
+     */
+    public function isSortable(): bool
+    {
+        return $this->sortableField && !empty($this->sortableField) ? true : false;
+    }
 }

@@ -11,14 +11,4 @@ use Rutorika\Sortable\SortableTrait as Sortable;
 trait SortableTrait
 {
     use Sortable;
-
-    /**
-     * Check if the class has sortable property which is not empty.
-     *
-     * @return boolean
-     */
-    public function isSortable(): bool
-    {
-        return $this->sortable && !empty($this->sortable) ? true : false;
-    }
 }
