@@ -7,7 +7,6 @@ return [
     'controller' => :app_namespaceHttp\Controllers\Admin\:controller_name::class,
     'adminColumns' => ['title'],
     'actions' => [:actions],
-    :sortable
     'adminFormFields' => [
         'title' => [
             'type' => 'text',

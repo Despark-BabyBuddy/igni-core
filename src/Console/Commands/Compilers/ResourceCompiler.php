@@ -125,7 +125,7 @@ class ResourceCompiler
         if ($this->options['reordering']) {
             $this->modelReplacements[':uses'][] = SortableTrait::class;
             $this->modelReplacements[':traits'][] = class_basename(SortableTrait::class);
-            $this->modelReplacements[':sortable'] = 'protected static $sortableField = [];';
+            $this->modelReplacements[':sortable'] = 'public $sortableField = [];';
         }
 
         $this->modelReplacements[':app_namespace'] = app()->getNamespace();
@@ -187,10 +187,6 @@ class ResourceCompiler
         }
 
         $this->entitiesReplacements[':actions'] = implode(', ', $actions);
-
-        if ($this->options['reordering']) {
-            $this->entitiesReplacements[':sortable'] = "'sortable' => [],";
-        }
 
         if ($this->options['image_uploads']) {
             $this->entitiesReplacements[':image_fields'] = "'image_fields' => [

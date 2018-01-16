@@ -131,8 +131,8 @@ abstract class AdminController extends BaseController
             }
 
             if($this->model instanceof \Despark\Model\User) {
-                
-                
+
+
                 $requestColumns = $request->only("columns")['columns'];
                 $output = Array();
                 foreach($request->only("columns")['columns'] as $c) {
@@ -455,7 +455,7 @@ abstract class AdminController extends BaseController
 
     public function postQueryBuilder($query) {
         return $query;
-    }    
+    }
 
     /*
      *  Blow-trough function for controller-specific
@@ -463,6 +463,10 @@ abstract class AdminController extends BaseController
      */
 
     public function getListView() {
+        if ($this->model->isSortable()) {
+            return 'ignicms::admin.layouts.sortableList';
+        }
+
         return 'ignicms::admin.layouts.list';
     }
 
