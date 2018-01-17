@@ -212,7 +212,8 @@
             {
                 targets: "no-sort",
                 orderable: false,
-                searchable: true
+                searchable: true,
+                className: 'sortable-handle', 'targets': [0]
             }
         ],
         aaSorting: [],
