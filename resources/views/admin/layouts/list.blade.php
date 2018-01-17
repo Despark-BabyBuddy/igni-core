@@ -198,7 +198,7 @@
             // Sortable
             var changePosition = function (requestData) {
                 $.ajax({
-                    url: '/sort',
+                    url: '{{ route('sort.post') }}',
                     type: 'POST',
                     data: requestData,
                     success: function (data) {
