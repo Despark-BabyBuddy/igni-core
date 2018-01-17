@@ -493,17 +493,21 @@ abstract class AdminController extends BaseController
      */
     public function sort($sortFilter)
     {
-        $request = app(Request::class);
-        if ($request->ajax()) {
-            $dataTableQuery = $this->prepareModelQuery($request);
-            $dataTableQuery = $dataTableQuery->orderBy($sortFilter, 'asc');
-            return $this->buildDataTable($dataTableQuery);
-        }
+        if (in_array($sortFilter, $this->model->getSortableFields())) {
+            $request = app(Request::class);
+            if ($request->ajax()) {
+                $dataTableQuery = $this->prepareModelQuery($request);
+                $dataTableQuery = $dataTableQuery->orderBy($sortFilter, 'asc');
+                return $this->buildDataTable($dataTableQuery);
+            }
 
-        // TODO refactor dataTablesAjaxUrl method, so we don't do things like this.
-        $this->viewData['dataTablesAjaxUrl'] = route($this->getResourceConfig()['id'].'.sort', $sortFilter);
-        $this->viewData['model'] = $this->model;
-        $this->viewData['sortFilter'] = $sortFilter;
-        return view($this->getListView(), $this->viewData);
+            // TODO refactor dataTablesAjaxUrl method, so we don't do things like this.
+            $this->viewData['dataTablesAjaxUrl'] = route($this->getResourceConfig()['id'].'.sort', $sortFilter);
+            $this->viewData['model'] = $this->model;
+            $this->viewData['sortFilter'] = $sortFilter;
+            return view($this->getListView(), $this->viewData);
+        } else {
+            return abort(404);
+        }
     }
 }
