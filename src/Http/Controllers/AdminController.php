@@ -421,6 +421,10 @@ abstract class AdminController extends BaseController
             'destroy',
         ];
 
+        if ($this->model->isSortable()) {
+            $actions[] = 'sort';
+        }
+
         $id = $this->resourceConfig['id'];
         foreach ($actions as $action) {
             $this->viewData[$action.'Route'] = $id.'.'.$action;
