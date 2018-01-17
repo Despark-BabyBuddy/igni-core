@@ -192,26 +192,28 @@
 
         });
 
-        table.tables().body().to$().addClass('sortable').attr('data-entityname', '{{ $controller->getResourceConfig()['id'] }}');
+        @if ($model->isSortable())
+            table.tables().body().to$().addClass('sortable').attr('data-entityname', '{{ $controller->getResourceConfig()['id'] }}');
 
-        // Sortable
-        var changePosition = function (requestData) {
-            $.ajax({
-                url: '/sort',
-                type: 'POST',
-                data: requestData,
-                success: function (data) {
-                    if (data.success) {
-                        console.log('Sort: success!');
-                    } else {
-                        console.log(data.errors);
+            // Sortable
+            var changePosition = function (requestData) {
+                $.ajax({
+                    url: '/sort',
+                    type: 'POST',
+                    data: requestData,
+                    success: function (data) {
+                        if (data.success) {
+                            console.log('Sort: success!');
+                        } else {
+                            console.log(data.errors);
+                        }
+                    },
+                    error: function (e) {
+                        console.log('Something went wrong! Error(' + e.status + '): ' + e.statusText);
                     }
-                },
-                error: function (e) {
-                    console.log('Something went wrong! Error(' + e.status + '): ' + e.statusText);
-                }
-            });
-        };
+                });
+            };
+        @endif
 
         var $sortableTable = $('.sortable');
         if ($sortableTable.length > 0) {
