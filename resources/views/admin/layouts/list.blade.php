@@ -9,11 +9,11 @@
                 <div class="box-header">
                     <h3 class="box-title">{{ $pageTitle }}</h3>
                     @if (count(request()->query) > 0)
-                        <p><strong>Filtered by:</strong> 
+                        <p><strong>Filtered by:</strong>
                         @foreach(request()->query as $key => $value)
                             {{ ucwords(str_replace('_', ' ', $key)).' ('.$value.')' }}
                         @endforeach
-                    @endif 
+                    @endif
                 </div>
 
                 <div class="box-body">
@@ -22,7 +22,7 @@
                             <a href="{{ route($createRoute) }}"
                                class="btn btn-success pull-left">+ {{ trans('ignicms::admin.add') }} {{ $pageTitle }}</a>
                         @endif
-                        
+
                         <div class="row">
                             <div class="col-sm-12" style="overflow: auto">
                                 <table id="data-table" class="table table-bordered table-striped dataTable"
@@ -41,11 +41,11 @@
                             </div>
                         </div>
 
-                        @php 
+                        @php
                             $resourceConfig = $controller->getResourceConfig();
                         @endphp
                         @if(isset($resourceConfig['parentModel']) AND request()->has($resourceConfig['parentModel']['foreignKey']))
-                           <a href="{{ route($resourceConfig['parentModel']['listingButtonRoute'], request()->query($resourceConfig['parentModel']['foreignKey'])) }}" class="btn btn-primary pull-left parent-model-btn">{{ $resourceConfig['parentModel']['listingButtonLabel'] }}</a> 
+                           <a href="{{ route($resourceConfig['parentModel']['listingButtonRoute'], request()->query($resourceConfig['parentModel']['foreignKey'])) }}" class="btn btn-primary pull-left parent-model-btn">{{ $resourceConfig['parentModel']['listingButtonLabel'] }}</a>
                         @endif
                     </div>
                 </div>
@@ -162,6 +162,15 @@
         $deleteModal.modal();
     });
 
+    // Sortable
+    var changePosition = function (requestData) {
+        $.ajax({
+            url: '/admin/sort',
+            type: 'POST',
+            data: requestData
+        });
+    };
+
     var isSortable = $('th.sort').length === 0;
 
     var table = $('#data-table').DataTable({
@@ -214,7 +223,7 @@
 
     $('#data-table thead th').each( function () {
 
-        if($(this).html() != 'Actions') 
+        if($(this).html() != 'Actions')
             $(this).html( $(this).html() + '<br><input class="form-control input-sm" type="text" placeholder="Search " />' );
     });
 
@@ -226,7 +235,7 @@
             column
                 .search( this.value )
                 .draw();
-            }).on("click", function() 
+            }).on("click", function()
             {
                     return false;
 
@@ -238,9 +247,9 @@
                             .draw();
                         return false;
                     }
-            
+
             });
-        
+
         });
 
         $("input", )
