@@ -28,6 +28,6 @@ Route::group(['prefix' => 'admin'], function () {
         Route::match(['get', 'post'], 'image/upload', 'Admin\ImageController@upload')->name('image.upload');
         Route::get('image/preview/{temp_image?}', 'Admin\ImageController@preview')->name('image.preview');
 
-        Route::post('sort', 'Despark\Cms\Http\Controllers\Admin@sort')->name('sort.post');
+        Route::post('sort', 'Admin\SortableController@sort')->name('sort.post');
     });
 });
