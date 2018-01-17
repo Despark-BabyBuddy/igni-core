@@ -489,10 +489,18 @@ abstract class AdminController extends BaseController
      *
      * @return \Illuminate\Http\JsonResponse|View
      */
-    public function sort(string $sortFilter)
+    public function sort($sortFilter)
     {
-        $this->index();
+        $request = app(Request::class);
+        if ($request->ajax()) {
+            $dataTableQuery = $this->prepareModelQuery($request);
+            $dataTableQuery = $dataTableQuery->orderBy($sortFilter, 'asc');
+            return $this->buildDataTable($dataTableQuery);
+        }
 
+        // TODO refactor dataTablesAjaxUrl method, so we don't do things like this.
+        $this->viewData['dataTablesAjaxUrl'] = route($this->getResourceConfig()['id'].'.sort', $sortFilter);
+        $this->viewData['model'] = $this->model;
         $this->viewData['sortFilter'] = $sortFilter;
         return view($this->getListView(), $this->viewData);
     }
