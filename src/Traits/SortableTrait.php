@@ -18,8 +18,7 @@ trait SortableTrait
      */
     public static function getSortableField(): array
     {
-        $sortableField = isset($this->$sortableFields) ? $this->$sortableFields : null;
-        return $sortableField;
+        return isset($this->sortableFields) ? $this->sortableFields : [];
     }
 
     /**
