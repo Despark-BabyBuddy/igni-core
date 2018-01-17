@@ -13,13 +13,13 @@ trait SortableTrait
     use Sortable;
 
     /**
-     * Check if the class has sortable property which is not empty.
-     *
-     * @return boolean
+     * Get sortable fields
+     * @return array
      */
-    public function isSortable(): bool
+    public static function getSortableField(): array
     {
-        return $this->sortableField && !empty($this->sortableField) ? true : false;
+        $sortableField = isset($this->$sortableFields) ? $this->$sortableFields : null;
+        return $sortableField;
     }
 
     /**

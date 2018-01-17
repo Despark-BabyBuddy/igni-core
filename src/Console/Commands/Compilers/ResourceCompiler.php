@@ -125,7 +125,7 @@ class ResourceCompiler
         if ($this->options['reordering']) {
             $this->modelReplacements[':uses'][] = SortableTrait::class;
             $this->modelReplacements[':traits'][] = class_basename(SortableTrait::class);
-            $this->modelReplacements[':sortable'] = 'public $sortableField = [];';
+            $this->modelReplacements[':sortable'] = 'protected $sortableFields = [];';
         }
 
         $this->modelReplacements[':app_namespace'] = app()->getNamespace();

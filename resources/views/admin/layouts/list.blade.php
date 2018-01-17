@@ -22,7 +22,6 @@
                             <a href="{{ route($createRoute) }}"
                                class="btn btn-success pull-left">+ {{ trans('ignicms::admin.add') }} {{ $pageTitle }}</a>
                         @endif
-
                         <div class="row">
                             <div class="col-sm-12" style="overflow: auto">
                                 <table id="data-table" class="table table-bordered table-striped dataTable"
@@ -95,61 +94,6 @@
         }
     });
 
-    // Sortable
-    var changePosition = function (requestData) {
-        $.ajax({
-            url: '/sort',
-            type: 'POST',
-            data: requestData,
-            success: function (data) {
-                if (data.success) {
-                    console.log('Sort: success!');
-                } else {
-                    console.log(data.errors);
-                }
-            },
-            error: function (e) {
-                console.log('Something went wrong! Error(' + e.status + '): ' + e.statusText);
-            }
-        });
-    };
-
-    var $sortableTable = $('.sortable');
-    if ($sortableTable.length > 0) {
-        $sortableTable.sortable({
-            handle: '.sortable-handle',
-            axis: 'y',
-            update: function (a, b) {
-                var entityName = $(this).data('entityname');
-                var $sorted = b.item;
-
-                var $previous = $sorted.prev();
-                var $next = $sorted.next();
-
-                if ($previous.length > 0) {
-                    changePosition({
-                        parentId: $sorted.data('parentid'),
-                        type: 'moveAfter',
-                        entityName: entityName,
-                        id: $sorted.data('itemid'),
-                        positionEntityId: $previous.data('itemid')
-                    });
-                } else if ($next.length > 0) {
-                    changePosition({
-                        parentId: $sorted.data('parentid'),
-                        type: 'moveBefore',
-                        entityName: entityName,
-                        id: $sorted.data('itemid'),
-                        positionEntityId: $next.data('itemid')
-                    });
-                } else {
-                    console.log(a);
-                }
-            },
-            cursor: "move"
-        });
-    }
-
     // Delete entity
     $('body').on('click', '.js-open-delete-modal', function (e) {
         e.preventDefault();
@@ -161,15 +105,6 @@
 
         $deleteModal.modal();
     });
-
-    // Sortable
-    var changePosition = function (requestData) {
-        $.ajax({
-            url: '/admin/sort',
-            type: 'POST',
-            data: requestData
-        });
-    };
 
     var isSortable = $('th.sort').length === 0;
 
@@ -253,8 +188,62 @@
 
         });
 
-        $("input", )
+        table.tables().body().to$().addClass('sortable').attr('data-entityname', '{{ $controller->getResourceConfig()['id'] }}');
 
+        // Sortable
+        var changePosition = function (requestData) {
+            $.ajax({
+                url: '/sort',
+                type: 'POST',
+                data: requestData,
+                success: function (data) {
+                    if (data.success) {
+                        console.log('Sort: success!');
+                    } else {
+                        console.log(data.errors);
+                    }
+                },
+                error: function (e) {
+                    console.log('Something went wrong! Error(' + e.status + '): ' + e.statusText);
+                }
+            });
+        };
+
+        var $sortableTable = $('.sortable');
+        if ($sortableTable.length > 0) {
+            $sortableTable.sortable({
+                handle: '.sortable-handle',
+                axis: 'y',
+                update: function (a, b) {
+                    var entityName = $(this).data('entityname');
+                    var $sorted = b.item;
+
+                    var $previous = $sorted.prev();
+                    var $next = $sorted.next();
+
+                    if ($previous.length > 0) {
+                        changePosition({
+                            parentId: $sorted.data('parentid'),
+                            type: 'moveAfter',
+                            entityName: entityName,
+                            id: $sorted.data('itemid'),
+                            positionEntityId: $previous.data('itemid')
+                        });
+                    } else if ($next.length > 0) {
+                        changePosition({
+                            parentId: $sorted.data('parentid'),
+                            type: 'moveBefore',
+                            entityName: entityName,
+                            id: $sorted.data('itemid'),
+                            positionEntityId: $next.data('itemid')
+                        });
+                    } else {
+                        console.log(a);
+                    }
+                },
+                cursor: "move"
+            });
+        }
 
 </script>
 @endpush

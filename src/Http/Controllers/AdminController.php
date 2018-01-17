@@ -17,7 +17,6 @@ use Yajra\DataTables\Contracts\DataTable;
 use Yajra\DataTables\DataTables;
 use Despark\Helpers\DesparkEncryptor;
 
-
 /**
  * Class AdminController.
  */
@@ -463,12 +462,6 @@ abstract class AdminController extends BaseController
      */
     public function getListView()
     {
-        // if (method_exists($this->model, 'isSortable') && $this->model->isSortable()) {
-        //     return 'ignicms::admin.layouts.sortableList';
-        // }
-
         return 'ignicms::admin.layouts.list';
     }
-
-
 }
