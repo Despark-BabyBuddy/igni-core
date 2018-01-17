@@ -9,11 +9,21 @@
                 <div class="box-header">
                     <h3 class="box-title">{{ $pageTitle }}</h3>
                     @if (count(request()->query) > 0)
-                        <p><strong>Filtered by:</strong> 
+                        <p><strong>Filtered by:</strong>
                         @foreach(request()->query as $key => $value)
                             {{ ucwords(str_replace('_', ' ', $key)).' ('.$value.')' }}
                         @endforeach
-                    @endif 
+                    @endif
+
+                    @if ($model->isSortable())
+                        <div class="pull-right">
+                            Sort:
+                            <a href="{{ route($resourceConfig['id'].'.index') }}" class="label {{ !isset($sortFilter) ? 'label-success' : 'label-default' }}">None</a>
+                            @foreach ($model->getSortableFields() as $field)
+                                <a href="{{ route($sortRoute, $field) }}" class="label {{ isset($sortFilter) && $sortFilter == $field ? 'label-success' : 'label-default' }}">{{ $field }}</a>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
 
                 <div class="box-body">
@@ -22,7 +32,7 @@
                             <a href="{{ route($createRoute) }}"
                                class="btn btn-success pull-left">+ {{ trans('ignicms::admin.add') }} {{ $pageTitle }}</a>
                         @endif
-                        
+
                         <div class="row">
                             <div class="col-sm-12" style="overflow: auto">
                                 <table id="data-table" class="table table-bordered table-striped dataTable"
@@ -41,11 +51,11 @@
                             </div>
                         </div>
 
-                        @php 
+                        @php
                             $resourceConfig = $controller->getResourceConfig();
                         @endphp
                         @if(isset($resourceConfig['parentModel']) AND request()->has($resourceConfig['parentModel']['foreignKey']))
-                           <a href="{{ route($resourceConfig['parentModel']['listingButtonRoute'], request()->query($resourceConfig['parentModel']['foreignKey'])) }}" class="btn btn-primary pull-left parent-model-btn">{{ $resourceConfig['parentModel']['listingButtonLabel'] }}</a> 
+                           <a href="{{ route($resourceConfig['parentModel']['listingButtonRoute'], request()->query($resourceConfig['parentModel']['foreignKey'])) }}" class="btn btn-primary pull-left parent-model-btn">{{ $resourceConfig['parentModel']['listingButtonLabel'] }}</a>
                         @endif
                     </div>
                 </div>
@@ -163,7 +173,7 @@
     });
 
     var isSortable = $('th.sort').length === 0;
-    
+
     var holdParentId;
 
     var table = $('#data-table').DataTable({
@@ -177,6 +187,9 @@
         processing: true,
         serverSide: true,
         ajax: "{{ $dataTablesAjaxUrl }}",
+        createdRow: function( row, data, dataIndex ) {
+            $(row).attr('data-itemId', data.id);
+        },
         columns: [
                 @foreach ($controller->getDataTableColumns() as $data)
             {
@@ -185,8 +198,8 @@
                 @if(isset($data['title'])), title: '{{$data['title']}}'@endif,
                 defaultContent: "",
                 render: function(data, type, full, meta) {
-                    
-                    if(full.parent_id != null && meta.col == 0) 
+
+                    if(full.parent_id != null && meta.col == 0)
                         return "&nbsp;&nbsp;&nbsp;&nbsp;" + data;
                     else return data;
 
@@ -203,7 +216,8 @@
             {
                 targets: "no-sort",
                 orderable: false,
-                searchable: false
+                searchable: false,
+                className: 'sortable-handle', 'targets': [0]
             }
         ],
         aaSorting: [],
@@ -211,5 +225,69 @@
             sSearch: "<span class='search-label uppercase'>Search</span>"
         }
     });
+
+    @if ($model->isSortable() && isset($sortFilter))
+        var $tableSortable = table.tables().body().to$();
+        $tableSortable.addClass('sortable')
+            .attr('data-entityname', '{{ $controller->getResourceConfig()['id'] }}');
+
+        // Sortable
+        var changePosition = function (requestData) {
+            $.ajax({
+                url: '{{ route('sort.post') }}',
+                type: 'POST',
+                data: requestData,
+                success: function (data) {
+                    if (data.success) {
+                        console.log('Sort: success!');
+                    } else {
+                        console.log(data.errors);
+                    }
+                },
+                error: function (e) {
+                    console.log('Something went wrong! Error(' + e.status + '): ' + e.statusText);
+                }
+            });
+        };
+
+        var $sortableTable = $('.sortable');
+        if ($sortableTable.length > 0) {
+            $sortableTable.sortable({
+                handle: '.sortable-handle',
+                axis: 'y',
+                update: function (a, b) {
+                    var entityName = $(this).data('entityname');
+                    var $sorted = b.item;
+
+                    var $previous = $sorted.prev();
+                    var $next = $sorted.next();
+
+                    // TODO: parentId undefined?
+                    if ($previous.length > 0) {
+                        changePosition({
+                            parentId: $sorted.data('parentid'),
+                            type: 'moveAfter',
+                            entityName: entityName,
+                            id: $sorted.data('itemid'),
+                            positionEntityId: $previous.data('itemid'),
+                            field: '{{ $sortFilter }}'
+                        });
+                    } else if ($next.length > 0) {
+                        changePosition({
+                            parentId: $sorted.data('parentid'),
+                            type: 'moveBefore',
+                            entityName: entityName,
+                            id: $sorted.data('itemid'),
+                            positionEntityId: $next.data('itemid'),
+                            field: '{{ $sortFilter }}'
+                        });
+                    } else {
+                        console.log(a);
+                    }
+                },
+                cursor: "move"
+            });
+        }
+    @endif
 </script>
 @endpush
