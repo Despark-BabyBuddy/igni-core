@@ -21,4 +21,11 @@ trait SortableTrait
     {
         return $this->sortableField && !empty($this->sortableField) ? true : false;
     }
+
+    /**
+     * Get a new query builder for the model's table.
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
+    abstract public function newQuery($excludeDeleted = true);
 }

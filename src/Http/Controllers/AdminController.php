@@ -463,7 +463,7 @@ abstract class AdminController extends BaseController
      */
     public function getListView()
     {
-        if (method_exists($this->model, 'isSortable')) {
+        if (method_exists($this->model, 'isSortable') && $this->model->isSortable()) {
             return 'ignicms::admin.layouts.sortableList';
         }
 
