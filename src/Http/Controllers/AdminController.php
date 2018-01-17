@@ -480,11 +480,11 @@ abstract class AdminController extends BaseController
      *
      * @return \Illuminate\Http\JsonResponse|View
      */
-    public function sort($param)
+    public function sort(string $sortFilter)
     {
-        parent::index();
+        $this->index();
 
-        $this->viewData['sortFilter'] = $param;
+        $this->viewData['sortFilter'] = $sortFilter;
         return view($this->getListView(), $this->viewData);
     }
 }
