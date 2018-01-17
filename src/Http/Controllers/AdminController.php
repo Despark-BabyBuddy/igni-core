@@ -93,6 +93,8 @@ abstract class AdminController extends BaseController
 
         $this->viewData['controller'] = $this;
 
+        $this->viewData['resourceConfig'] = $this->resourceConfig;
+
         //Prepare view actions
         $this->prepareActions();
     }

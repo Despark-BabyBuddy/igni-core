@@ -14,12 +14,17 @@
                             {{ ucwords(str_replace('_', ' ', $key)).' ('.$value.')' }}
                         @endforeach
                     @endif
+                    @if ($model->isSortable())
+                        <div class="pull-right">
+                            Sort:
+                            <a href="{{ route($resourceConfig['id'].'.index') }}" class="label {{ !isset($sortFilter) ? 'label-success' : 'label-default' }}">None</a>
+                            @foreach ($model->getSortableFields() as $field)
+                                <a href="{{ route($sortRoute, $field) }}" class="label {{ isset($sortFilter) && $sortFilter == $field ? 'label-success' : 'label-default' }}">{{ $field }}</a>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
-                @if ($model->isSortable())
-                    @foreach ($model->getSortableFields() as $field)
-                        <a href="{{ route($sortRoute, $field) }}" class="label {{ isset($sortFilter) && $sortFilter == $field ? 'label-success' : 'label-default' }}">{{ $field }}</a>
-                    @endforeach
-                @endif
+
                 <div class="box-body">
                     <div id="data-table_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
                         @if(isset($createRoute))
@@ -32,6 +37,7 @@
                                        role="grid" aria-describedby="data-table_info">
                                     <thead>
                                     <tr>
+                                        {{-- TODO: Remove $controller and use $resourceConfig instead. --}}
                                         @foreach($controller->getDataTableColumns() as $col)
                                             <th class="col-{{ $col['data'] }}">{{ $col['title'] or $col['data'] }}</th>
                                         @endforeach
@@ -44,9 +50,6 @@
                             </div>
                         </div>
 
-                        @php
-                            $resourceConfig = $controller->getResourceConfig();
-                        @endphp
                         @if(isset($resourceConfig['parentModel']) AND request()->has($resourceConfig['parentModel']['foreignKey']))
                            <a href="{{ route($resourceConfig['parentModel']['listingButtonRoute'], request()->query($resourceConfig['parentModel']['foreignKey'])) }}" class="btn btn-primary pull-left parent-model-btn">{{ $resourceConfig['parentModel']['listingButtonLabel'] }}</a>
                         @endif
@@ -123,6 +126,9 @@
         processing: true,
         serverSide: true,
         ajax: "{{ $dataTablesAjaxUrl }}",
+        createdRow: function( row, data, dataIndex ) {
+            $(row).attr('data-itemId', data.id);
+        },
         columns: [
                 @foreach ($controller->getDataTableColumns() as $data)
             {
@@ -192,8 +198,10 @@
 
         });
 
-        @if ($model->isSortable())
-            table.tables().body().to$().addClass('sortable').attr('data-entityname', '{{ $controller->getResourceConfig()['id'] }}');
+        @if ($model->isSortable() && isset($sortFilter))
+            var $tableSortable = table.tables().body().to$();
+            $tableSortable.addClass('sortable')
+                .attr('data-entityname', '{{ $controller->getResourceConfig()['id'] }}');
 
             // Sortable
             var changePosition = function (requestData) {
@@ -227,13 +235,15 @@
                     var $previous = $sorted.prev();
                     var $next = $sorted.next();
 
+                    // TODO: parentId undefined?
                     if ($previous.length > 0) {
                         changePosition({
                             parentId: $sorted.data('parentid'),
                             type: 'moveAfter',
                             entityName: entityName,
                             id: $sorted.data('itemid'),
-                            positionEntityId: $previous.data('itemid')
+                            positionEntityId: $previous.data('itemid'),
+                            field: '{{ $sortFilter }}'
                         });
                     } else if ($next.length > 0) {
                         changePosition({
@@ -241,7 +251,8 @@
                             type: 'moveBefore',
                             entityName: entityName,
                             id: $sorted.data('itemid'),
-                            positionEntityId: $next.data('itemid')
+                            positionEntityId: $next.data('itemid'),
+                            field: '{{ $sortFilter }}'
                         });
                     } else {
                         console.log(a);
