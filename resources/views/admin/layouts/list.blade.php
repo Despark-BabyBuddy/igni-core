@@ -17,7 +17,7 @@
                 </div>
                 @if ($model->isSortable())
                     @foreach ($model->getSortableFields() as $field)
-                        <a href="{{ route($sortRoute, $field) }}" class="label {{ isset($sortFilter) && $sortFilter == $field ? 'label-success' : 'label-primary' }}">{{ $field }}</a>
+                        <a href="{{ route($sortRoute, $field) }}" class="label {{ isset($sortFilter) && $sortFilter == $field ? 'label-success' : 'label-default' }}">{{ $field }}</a>
                     @endforeach
                 @endif
                 <div class="box-body">

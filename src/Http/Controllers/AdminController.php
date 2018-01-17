@@ -16,6 +16,7 @@ use View;
 use Yajra\DataTables\Contracts\DataTable;
 use Yajra\DataTables\DataTables;
 use Despark\Helpers\DesparkEncryptor;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class AdminController.
@@ -106,7 +107,8 @@ abstract class AdminController extends BaseController
     {
         $request = app(Request::class);
         if ($request->ajax()) {
-            return $this->buildDataTable();
+            $dataTableQuery = $this->prepareModelQuery($request);
+            return $this->buildDataTable($dataTableQuery);
         }
 
         $this->viewData['model'] = $this->model;
@@ -118,7 +120,7 @@ abstract class AdminController extends BaseController
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function prepareModelQuery(Request $request)
+    protected function prepareModelQuery(Request $request): Builder
     {
         $tableColumns = $this->model->getAdminTableColumns();
         $query = $this->model->newQuery();
@@ -400,12 +402,19 @@ abstract class AdminController extends BaseController
     {
     }
 
-    protected function buildDataTable()
+
+    /**
+     * Method for building DataTable
+     * @param  Builder $modelQuery
+     * @return string
+     */
+    protected function buildDataTable(Builder $modelQuery)
     {
         $request = app(Request::class);
 
         $dataTable = app(DataTables::class);
-        $dataTableEngine = $dataTable->eloquent($this->prepareModelQuery($request));
+        //$this->prepareModelQuery($request)
+        $dataTableEngine = $dataTable->eloquent($modelQuery);
 
         if ($this->hasActionButtons()) {
             $dataTableEngine->addColumn('action', function ($record) {
