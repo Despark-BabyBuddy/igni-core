@@ -35,14 +35,14 @@ class EntityController extends AdminController
         if ($this->model instanceof Translatable) {
             $this->model->setActiveLocale($input['locale']);
         }
-        
+
         $record = $this->model->set($input);
         //$record = $this->model->create($input);
 
-        foreach ($this->model->getManyToManyFields() as $metod => $array) {        
-            $record->$metod()->sync($request->get($array, []));        
+        foreach ($this->model->getManyToManyFields() as $metod => $array) {
+            $record->$metod()->sync($request->get($array, []));
         }
-        
+
 
         $this->model->save();
         $this->notify([
@@ -75,10 +75,10 @@ class EntityController extends AdminController
         $record->update($input);
 
 
-        foreach ($this->model->getManyToManyFields() as $metod => $array) {     
-            $record->$metod()->sync($request->get($array, []));        
+        foreach ($this->model->getManyToManyFields() as $metod => $array) {
+            $record->$metod()->sync($request->get($array, []));
         }
-        
+
         $this->notify([
             'type' => 'success',
             'title' => 'Successful update!',

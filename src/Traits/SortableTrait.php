@@ -14,10 +14,10 @@ trait SortableTrait
 
     /**
      * Get sortable fields
-     * 
+     *
      * @return array
      */
-    public function getSortableField(): array
+    public function getSortableFields(): array
     {
         return isset($this->sortableFields) ? $this->sortableFields : [];
     }

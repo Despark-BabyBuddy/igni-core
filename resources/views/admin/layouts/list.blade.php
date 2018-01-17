@@ -15,7 +15,11 @@
                         @endforeach
                     @endif
                 </div>
-
+                @if ($model->isSortable())
+                    @foreach ($model->getSortableFields() as $field)
+                        <a href="{{ route($sortRoute, $field) }}" class="label {{ isset($sortFilter) && $sortFilter == $field ? 'label-success' : 'label-primary' }}">{{ $field }}</a>
+                    @endforeach
+                @endif
                 <div class="box-body">
                     <div id="data-table_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
                         @if(isset($createRoute))
