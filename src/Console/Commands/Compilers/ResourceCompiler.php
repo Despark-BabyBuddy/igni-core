@@ -8,6 +8,7 @@ use Despark\Cms\Console\Commands\Admin\ResourceCommand;
 use Despark\LaravelDbLocalization\Contracts\Translatable;
 use Despark\LaravelDbLocalization\Traits\HasTranslation;
 use Illuminate\Console\Command;
+use Despark\Cms\Traits\SortableTrait;
 
 /**
  * Class ResourceCompiler.
@@ -121,6 +122,12 @@ class ResourceCompiler
             $this->modelReplacements[':translatable'] = 'protected $translatable = [];';
         }
 
+        if ($this->options['reordering']) {
+            $this->modelReplacements[':uses'][] = SortableTrait::class;
+            $this->modelReplacements[':traits'][] = class_basename(SortableTrait::class);
+            $this->modelReplacements[':sortable'] = 'protected $sortableFields = [];';
+        }
+
         $this->modelReplacements[':app_namespace'] = app()->getNamespace();
         $this->modelReplacements[':table_name'] = str_plural($this->identifier);
         $this->modelReplacements[':model_name'] = $this->command->model_name($this->identifier);
@@ -198,9 +205,9 @@ class ResourceCompiler
             ],
         ],
     ],";
-        $this->entitiesReplacements[':image_upload'] = "'image' => [       
-            'type' => 'imageSingle',       
-            'label' => 'Image',        
+        $this->entitiesReplacements[':image_upload'] = "'image' => [
+            'type' => 'imageSingle',
+            'label' => 'Image',
         ],";
         }
 

@@ -146,7 +146,7 @@ abstract class AdminModel extends Model
                 }
             }
         }
-        
+
         return parent::fill($attributes);
     }
 
@@ -292,6 +292,16 @@ abstract class AdminModel extends Model
         $table = parent::getTable();
 
         return config('ignicms.igniTablesPrefix') ? config('ignicms.igniTablesPrefix').'_'.$table : $table;
+    }
+
+    /**
+     * Check if the class has sortable property which is not empty.
+     *
+     * @return boolean
+     */
+    public function isSortable(): bool
+    {
+        return isset($this->sortableFields) && !empty($this->sortableFields) ? true : false;
     }
 
     function getManyToManyFields() { return Array(); }

@@ -16,7 +16,7 @@ use View;
 use Yajra\DataTables\Contracts\DataTable;
 use Yajra\DataTables\DataTables;
 use Despark\Helpers\DesparkEncryptor;
-
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Class AdminController.
@@ -93,6 +93,8 @@ abstract class AdminController extends BaseController
 
         $this->viewData['controller'] = $this;
 
+        $this->viewData['resourceConfig'] = $this->resourceConfig;
+
         //Prepare view actions
         $this->prepareActions();
     }
@@ -105,52 +107,10 @@ abstract class AdminController extends BaseController
      */
     public function index()
     {
-
         $request = app(Request::class);
         if ($request->ajax()) {
-
-            $dataTable = app(DataTables::class);
-            $dataTableEngine = $dataTable->eloquent($this->prepareModelQuery($request));
-
-            if ($this->hasActionButtons()) {
-                $dataTableEngine->addColumn('action', function ($record) {
-                    return $this->getActionButtonsHtml($record);
-                });
-            }
-
-            // Check for any fields that needs custom building.
-            foreach ($this->model->getAdminTableColumns() as $column) {
-                $columnName = preg_replace('/[^0-9a-zA-Z]+/', '', $column);
-                $columnName = studly_case($columnName);
-                $method = 'build'.$columnName.'Column';
-                if (method_exists($this, 'build'.$columnName.'Column')) {
-                    $dataTableEngine->editColumn($column, function ($data) use ($method) {
-                        return call_user_func([$this, $method], $data);
-                    });
-                }
-            }
-
-            if($this->model instanceof \Despark\Model\User) {
-                
-                
-                $requestColumns = $request->only("columns")['columns'];
-                $output = Array();
-                foreach($request->only("columns")['columns'] as $c) {
-                    if(
-                            in_array($c['name'], ['email', 'name'])
-                            AND $c['search']['value'] <> ""
-                        )
-                        $c['search']['value'] = DesparkEncryptor::encrypt($c['search']['value']);
-
-                    $output[] = $c;
-                }
-
-                $request->merge(['columns' => $output]);
-            }
-           	//print_r($request->all());die();
-            $this->prepareDataTable($request, $dataTableEngine);
-
-            return $dataTableEngine->make(true);
+            $dataTableQuery = $this->prepareModelQuery($request);
+            return $this->buildDataTable($dataTableQuery);
         }
 
         $this->viewData['model'] = $this->model;
@@ -162,7 +122,7 @@ abstract class AdminController extends BaseController
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function prepareModelQuery(Request $request)
+    protected function prepareModelQuery(Request $request): Builder
     {
         $tableColumns = $this->model->getAdminTableColumns();
         $query = $this->model->newQuery();
@@ -422,6 +382,10 @@ abstract class AdminController extends BaseController
             'destroy',
         ];
 
+        if ($this->model->isSortable()) {
+            $actions[] = 'sort';
+        }
+
         $id = $this->resourceConfig['id'];
         foreach ($actions as $action) {
             $this->viewData[$action.'Route'] = $id.'.'.$action;
@@ -440,6 +404,61 @@ abstract class AdminController extends BaseController
     {
     }
 
+
+    /**
+     * Method for building DataTable
+     * @param  Builder $modelQuery
+     * @return string
+     */
+    protected function buildDataTable(Builder $modelQuery)
+    {
+        $request = app(Request::class);
+
+        $dataTable = app(DataTables::class);
+        //$this->prepareModelQuery($request)
+        $dataTableEngine = $dataTable->eloquent($modelQuery);
+
+        if ($this->hasActionButtons()) {
+            $dataTableEngine->addColumn('action', function ($record) {
+                return $this->getActionButtonsHtml($record);
+            });
+        }
+
+        // Check for any fields that needs custom building.
+        foreach ($this->model->getAdminTableColumns() as $column) {
+            $columnName = preg_replace('/[^0-9a-zA-Z]+/', '', $column);
+            $columnName = studly_case($columnName);
+            $method = 'build'.$columnName.'Column';
+            if (method_exists($this, 'build'.$columnName.'Column')) {
+                $dataTableEngine->editColumn($column, function ($data) use ($method) {
+                    return call_user_func([$this, $method], $data);
+                });
+            }
+        }
+
+        if($this->model instanceof \Despark\Model\User) {
+
+
+            $requestColumns = $request->only("columns")['columns'];
+            $output = Array();
+            foreach($request->only("columns")['columns'] as $c) {
+                if(
+                        in_array($c['name'], ['email', 'name'])
+                        AND $c['search']['value'] <> ""
+                    )
+                    $c['search']['value'] = DesparkEncryptor::encrypt($c['search']['value']);
+
+                $output[] = $c;
+            }
+
+            $request->merge(['columns' => $output]);
+        }
+        //print_r($request->all());die();
+        $this->prepareDataTable($request, $dataTableEngine);
+
+        return $dataTableEngine->make(true);
+    }
+
     /**
      * @return Sidebar
      */
@@ -455,16 +474,40 @@ abstract class AdminController extends BaseController
 
     public function postQueryBuilder($query) {
         return $query;
-    }    
+    }
 
     /*
      *  Blow-trough function for controller-specific
      *  list views
      */
-
-    public function getListView() {
+    public function getListView()
+    {
         return 'ignicms::admin.layouts.list';
     }
 
+    /**
+     * Sort method
+     * TODO: Probably figure out a better place for this.
+     *
+     * @return \Illuminate\Http\JsonResponse|View
+     */
+    public function sort($sortFilter)
+    {
+        if (in_array($sortFilter, $this->model->getSortableFields())) {
+            $request = app(Request::class);
+            if ($request->ajax()) {
+                $dataTableQuery = $this->prepareModelQuery($request);
+                $dataTableQuery = $dataTableQuery->orderBy($sortFilter, 'asc');
+                return $this->buildDataTable($dataTableQuery);
+            }
 
+            // TODO refactor dataTablesAjaxUrl method, so we don't do things like this.
+            $this->viewData['dataTablesAjaxUrl'] = route($this->getResourceConfig()['id'].'.sort', $sortFilter);
+            $this->viewData['model'] = $this->model;
+            $this->viewData['sortFilter'] = $sortFilter;
+            return view($this->getListView(), $this->viewData);
+        } else {
+            return abort(404);
+        }
+    }
 }

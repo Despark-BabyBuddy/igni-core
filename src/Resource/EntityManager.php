@@ -261,10 +261,15 @@ class EntityManager
                 \Route::resource($resource, EntityController::class);
             }
 
+            // Check if model is sortable and add sorting route if needed.
+            if (app()->make($config['model'])->isSortable()) {
+                \Route::get($resource.'/sort/{column}', $config['controller'].'@sort')->name($resource.'.sort');
+            }
+
             $this->addRoutes($resource, build_resource_backport($resource));
 
 
-        } 
+        }
 
     }
 
@@ -335,7 +340,7 @@ class EntityManager
                 $data = compact('options', 'value', 'field', 'model');
                 $data['parent'] = $model;
                 $fieldModel = \Field::make($data);
-                /*  If you want to attach the parent model 
+                /*  If you want to attach the parent model
                     to the field, declare a public $parent
                     property in the src\Fields\ model
                 */

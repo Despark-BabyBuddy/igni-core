@@ -67,6 +67,7 @@ class ResourceCommand extends Command
 
         $this->askImageUploads();
         $this->askTranslations();
+        $this->askReordering();
         $this->askMigration();
         $this->askActions();
         $this->compiler = new ResourceCompiler($this, $this->identifier, $this->configIdentifier, $this->resourceOptions);
@@ -132,6 +133,12 @@ class ResourceCommand extends Command
     {
         $answer = $this->confirm('Do you need migration?');
         $this->resourceOptions['migration'] = $answer;
+    }
+
+    protected function askReordering()
+    {
+        $answer = $this->confirm('Do you need row reordering?');
+        $this->resourceOptions['reordering'] = $answer;
     }
 
     protected function askActions()

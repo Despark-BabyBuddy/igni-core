@@ -13,6 +13,8 @@ class :model_name extends AdminModel :implementations
 
     :translatable
 
+    :sortable
+
     protected $fillable = ['title'];
 
     protected $rules = ['title' => 'required|max:50'];
