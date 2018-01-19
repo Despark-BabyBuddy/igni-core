@@ -69,7 +69,7 @@ class SortableController extends \Rutorika\Sortable\SortableController
             return $validator->make($request->all(), $rules);
         }
 
-        $sortableFields = app()->make($entityClass)->getSortableFields();
+        $sortableFields = app()->make($entityClass)->getSortableFieldsKeys();
         if (!in_array($request->input('field'), $sortableFields)) {
             $rules['field'] = 'required|in:'.implode(',', $sortableFields);
             return $validator->make($request->all(), $rules);

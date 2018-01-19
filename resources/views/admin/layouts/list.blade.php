@@ -17,9 +17,9 @@
                     @if ($model->isSortable())
                         <div class="pull-right">
                             Sort:
-                            <a href="{{ route($resourceConfig['id'].'.index') }}" class="label {{ !isset($sortFilter) ? 'label-success' : 'label-default' }}">None</a>
-                            @foreach ($model->getSortableFields() as $field)
-                                <a href="{{ route($sortRoute, $field) }}" class="label {{ isset($sortFilter) && $sortFilter == $field ? 'label-success' : 'label-default' }}">{{ $field }}</a>
+                            <a href="{{ route($resourceConfig['id'].'.index') }}" class="label {{ !isset($sortFilter) ? 'label-success' : 'label-default' }}">All</a>
+                            @foreach ($model->getSortableFields() as $key => $label)
+                                <a href="{{ route($sortRoute, $key) }}" class="label {{ isset($sortFilter) && $sortFilter == $key ? 'label-success' : 'label-default' }}">{{ $label }}</a>
                             @endforeach
                         </div>
                     @endif
