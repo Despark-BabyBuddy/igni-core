@@ -493,7 +493,7 @@ abstract class AdminController extends BaseController
      */
     public function sort($sortFilter)
     {
-        if (in_array($sortFilter, $this->model->getSortableFields())) {
+        if (in_array($sortFilter, $this->model->getSortableFieldsKeys())) {
             $request = app(Request::class);
             if ($request->ajax()) {
                 $dataTableQuery = $this->prepareModelQuery($request);

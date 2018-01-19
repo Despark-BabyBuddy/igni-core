@@ -23,6 +23,16 @@ trait SortableTrait
     }
 
     /**
+     * Get the keys from the sortable fields
+     *
+     * @return array
+     */
+    public function getSortableFieldsKeys(): array
+    {
+        return array_keys($this->getSortableFieldsKeys());
+    }
+
+    /**
      * moves $this model after $entity model (and rearrange all entities).
      *
      * @param Model $entity
