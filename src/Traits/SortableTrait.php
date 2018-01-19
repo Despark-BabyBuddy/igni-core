@@ -29,7 +29,7 @@ trait SortableTrait
      */
     public function getSortableFieldsKeys(): array
     {
-        return array_keys($this->getSortableFieldsKeys());
+        return array_keys($this->getSortableFields());
     }
 
     /**
