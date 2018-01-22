@@ -383,7 +383,7 @@ abstract class AdminController extends BaseController
         ];
 
         if ($this->model->isSortable()) {
-            $actions[] = 'sort';
+            $actions[] = 'filter';
         }
 
         $id = $this->resourceConfig['id'];
@@ -486,23 +486,55 @@ abstract class AdminController extends BaseController
     }
 
     /**
-     * Sort method
+     * Get / modify filters from the model
+     *
+     * @return array
+     */
+    protected function getFilters(): array
+    {
+        $customFilters = [];
+        $modelFilters = $this->model->isSortable() ? $this->model->getSortableFields() : [];
+
+        $filters = array_merge($customFilters, $modelFilters);
+
+        return $filters;
+    }
+
+    /**
+     * Prepare filter query
+     *
+     * @param  Builder $queryBuilder
+     * @param  string  $sortFilter
+     * @param  string  $order
+     * @return Builder
+     */
+    protected function prepareFilterQuery(Builder $queryBuilder, string $sortFilter, string $order): Builder
+    {
+        $queryBuilder = $queryBuilder
+                        ->where('type', str_replace('sort_position', 'buddy', $sortFilter))
+                        ->orWhere('type', null)
+                        ->orderBy($sortFilter, $order);
+        return $queryBuilder;
+    }
+
+    /**
+     * Filter method
      * TODO: Probably figure out a better place for this.
      *
      * @return \Illuminate\Http\JsonResponse|View
      */
-    public function sort($sortFilter)
+    public function filter($sortFilter, $order = 'asc')
     {
         if (in_array($sortFilter, $this->model->getSortableFieldsKeys())) {
             $request = app(Request::class);
             if ($request->ajax()) {
                 $dataTableQuery = $this->prepareModelQuery($request);
-                $dataTableQuery = $dataTableQuery->orderBy($sortFilter, 'asc');
+                $dataTableQuery = $this->prepareFilterQuery($dataTableQuery, $sortFilter, $order);
                 return $this->buildDataTable($dataTableQuery);
             }
 
             // TODO refactor dataTablesAjaxUrl method, so we don't do things like this.
-            $this->viewData['dataTablesAjaxUrl'] = route($this->getResourceConfig()['id'].'.sort', $sortFilter);
+            $this->viewData['dataTablesAjaxUrl'] = route($this->getResourceConfig()['id'].'.filter', $sortFilter);
             $this->viewData['model'] = $this->model;
             $this->viewData['sortFilter'] = $sortFilter;
             return view($this->getListView(), $this->viewData);
