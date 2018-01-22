@@ -496,6 +496,38 @@ abstract class AdminController extends BaseController
     }
 
     /**
+     * Get / modify filters from the model
+     *
+     * @return array
+     */
+    protected function getFilters(): array
+    {
+        $customFilters = [];
+        $modelFilters = $this->model->isSortable() ? $this->model->getSortableFields() : [];
+
+        $filters = array_merge($customFilters, $modelFilters);
+
+        return $filters;
+    }
+
+    /**
+     * Prepare filter query
+     *
+     * @param  Builder $queryBuilder
+     * @param  string  $sortFilter
+     * @param  string  $order
+     * @return Builder
+     */
+    protected function prepareFilterQuery(Builder $queryBuilder, string $sortFilter, string $order): Builder
+    {
+        $queryBuilder = $queryBuilder
+                        ->where('type', str_replace('sort_position', 'buddy', $sortFilter))
+                        ->orWhere('type', null)
+                        ->orderBy($sortFilter, $order);
+        return $queryBuilder;
+    }
+
+    /**
      * Filter method
      * TODO: Probably figure out a better place for this.
      *
@@ -507,7 +539,7 @@ abstract class AdminController extends BaseController
             $request = app(Request::class);
             if ($request->ajax()) {
                 $dataTableQuery = $this->prepareModelQuery($request);
-                $dataTableQuery = $dataTableQuery->orderBy($sortFilter, $order);
+                $dataTableQuery = $this->prepareFilterQuery($dataTableQuery, $sortFilter, $order);
                 return $this->buildDataTable($dataTableQuery);
             }
 
