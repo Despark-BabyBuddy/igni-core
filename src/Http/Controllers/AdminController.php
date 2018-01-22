@@ -383,7 +383,7 @@ abstract class AdminController extends BaseController
         ];
 
         if ($this->model->isSortable()) {
-            $actions[] = 'sort';
+            $actions[] = 'filter';
         }
 
         $id = $this->resourceConfig['id'];
@@ -486,12 +486,12 @@ abstract class AdminController extends BaseController
     }
 
     /**
-     * Sort method
+     * Filter method
      * TODO: Probably figure out a better place for this.
      *
      * @return \Illuminate\Http\JsonResponse|View
      */
-    public function sort($sortFilter)
+    public function filter($sortFilter)
     {
         if (in_array($sortFilter, $this->model->getSortableFieldsKeys())) {
             $request = app(Request::class);
@@ -502,7 +502,7 @@ abstract class AdminController extends BaseController
             }
 
             // TODO refactor dataTablesAjaxUrl method, so we don't do things like this.
-            $this->viewData['dataTablesAjaxUrl'] = route($this->getResourceConfig()['id'].'.sort', $sortFilter);
+            $this->viewData['dataTablesAjaxUrl'] = route($this->getResourceConfig()['id'].'.filter', $sortFilter);
             $this->viewData['model'] = $this->model;
             $this->viewData['sortFilter'] = $sortFilter;
             return view($this->getListView(), $this->viewData);
