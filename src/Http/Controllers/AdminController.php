@@ -485,16 +485,6 @@ abstract class AdminController extends BaseController
         return 'ignicms::admin.layouts.list';
     }
 
-    protected function getFilters(): array
-    {
-        $customFilters = [];
-        $modelFilters = $this->model->isSortable() ? $this->model->getSortableFields() : [];
-
-        $filters = array_merge($customFilters, $modelFilters);
-
-        return $filters;
-    }
-
     /**
      * Get / modify filters from the model
      *
