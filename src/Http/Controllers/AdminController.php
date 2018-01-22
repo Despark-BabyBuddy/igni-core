@@ -485,19 +485,29 @@ abstract class AdminController extends BaseController
         return 'ignicms::admin.layouts.list';
     }
 
+    protected function getFilters(): array
+    {
+        $customFilters = [];
+        $modelFilters = $this->model->isSortable() ? $this->model->getSortableFields() : [];
+
+        $filters = array_merge($customFilters, $modelFilters);
+
+        return $filters;
+    }
+
     /**
      * Filter method
      * TODO: Probably figure out a better place for this.
      *
      * @return \Illuminate\Http\JsonResponse|View
      */
-    public function filter($sortFilter)
+    public function filter($sortFilter, $order = 'asc')
     {
         if (in_array($sortFilter, $this->model->getSortableFieldsKeys())) {
             $request = app(Request::class);
             if ($request->ajax()) {
                 $dataTableQuery = $this->prepareModelQuery($request);
-                $dataTableQuery = $dataTableQuery->orderBy($sortFilter, 'asc');
+                $dataTableQuery = $dataTableQuery->orderBy($sortFilter, $order);
                 return $this->buildDataTable($dataTableQuery);
             }
 
