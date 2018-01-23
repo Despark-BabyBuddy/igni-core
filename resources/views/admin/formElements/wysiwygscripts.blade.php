@@ -154,7 +154,7 @@
                         type: 'checkbox',
                         text: 'Insert thumbnail',
                         name: 'videosvideo',
-                        classes: "insert_thumb",
+                        classes: "insert_thumb selector",
                         hidden: url == 'applink://videos?video=' ? false : true,
                         values : [],
                         value: id
