@@ -180,7 +180,7 @@
         pageLength: {{ config('ignicms.paginateLimit') }},
         lengthChange: false,
         searching: true,
-        ordering: isSortable !== false,
+        ordering: false,
         info: false,
         autoWidth: true,
         processing: true,
