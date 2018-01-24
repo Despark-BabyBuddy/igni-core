@@ -222,6 +222,7 @@
                 });
             };
 
+            var $sortableTable = $('.sortable');
             if ($sortableTable.length > 0) {
                 $sortableTable.sortable({
                     handle: '.sortable-handle',
