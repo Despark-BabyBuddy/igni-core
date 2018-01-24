@@ -17,7 +17,6 @@
                     @if ($model->isSortable())
                         <div class="pull-right">
                             Filter:
-                            <a href="{{ route($resourceConfig['id'].'.index') }}" class="label {{ !isset($sortFilter) ? 'label-success' : 'label-default' }}">All</a>
                             @foreach ($model->getSortableFields() as $key => $label)
                                 <a href="{{ route($filterRoute, $key) }}" class="label {{ isset($sortFilter) && $sortFilter == $key ? 'label-success' : 'label-default' }}">{{ $label }}</a>
                             @endforeach
