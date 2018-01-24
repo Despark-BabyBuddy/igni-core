@@ -64,6 +64,11 @@ abstract class AdminController extends BaseController
     protected $resourceConfig;
 
     /**
+     * @var string
+     */
+    protected $sortFilter;
+
+    /**
      * AdminController constructor.
      */
     public function __construct(EntityManager $entityManager)
@@ -279,6 +284,10 @@ abstract class AdminController extends BaseController
         $buttons = [];
         $queryString = str_replace(request()->url(), '', request()->fullURL());
 
+        if ($this->model->isSortable()) {
+            $buttons[] = '<span class="btn btn-warning sortable-handle"><span class="fa fa-arrows"></span></span>';
+        }
+
         if (isset($this->viewData['editRoute'])) {
             $buttons[] = '<a href="'.route($this->viewData['editRoute'],
                     ['id' => $record->id]).$queryString.'" class="btn btn-primary">'.trans('ignicms::admin.edit').'</a>';
@@ -365,6 +374,19 @@ abstract class AdminController extends BaseController
     public function setResourceConfig($resourceConfig)
     {
         $this->resourceConfig = $resourceConfig;
+
+        return $this;
+    }
+
+    public function setSortFilter($sortFilter)
+    {
+        if (in_array($sortFilter, $this->model->getSortableFieldsKeys())) {
+            $this->sortFilter = $sortFilter;
+            $this->viewData['sortFilter'] = $this->sortFilter;
+        } else {
+            // TODO: Maybe a custom exception will be better.
+            throw new \Exception('Filter '.$sortFilter.' not found for this model.');
+        }
 
         return $this;
     }
@@ -525,7 +547,9 @@ abstract class AdminController extends BaseController
      */
     public function filter($sortFilter, $order = 'asc')
     {
-        if (in_array($sortFilter, $this->model->getSortableFieldsKeys())) {
+        try {
+            $this->setSortFilter($sortFilter);
+
             $request = app(Request::class);
             if ($request->ajax()) {
                 $dataTableQuery = $this->prepareModelQuery($request);
@@ -538,8 +562,8 @@ abstract class AdminController extends BaseController
             $this->viewData['model'] = $this->model;
             $this->viewData['sortFilter'] = $sortFilter;
             return view($this->getListView(), $this->viewData);
-        } else {
-            return abort(404);
+        } catch (\Exception $exception) {
+            abort(404, $exception->getMessage());
         }
     }
 }
