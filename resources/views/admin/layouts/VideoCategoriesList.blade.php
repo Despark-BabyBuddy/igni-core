@@ -192,6 +192,7 @@
                 @foreach ($controller->getDataTableColumns() as $data)
             {
                 data: '{{ $data['data'] }}',
+                searchable: false,
                 name: '{{ $data['name'] }}'
                 @if(isset($data['title'])), title: '{{$data['title']}}'@endif,
                 defaultContent: "",
