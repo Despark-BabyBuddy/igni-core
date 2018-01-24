@@ -260,6 +260,10 @@
                     cursor: "move"
                 });
             }
+        @else
+            $(document).on('mousedown', '.sortable-handle', function(event) {
+                alert("{{ trans('ignicms::admin.sortable_select_filter') }}");
+            });
         @endif
 
 </script>

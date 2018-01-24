@@ -20,4 +20,5 @@ return [
     'yes' => 'Yes',
     'no' => 'No',
     'throttle' => 'Too many login attempts. Please try again in :time :dimension.',
+    'sortable_select_filter' => 'Please select filter to start reordering.'
 ];
