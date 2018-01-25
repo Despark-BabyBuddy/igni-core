@@ -263,7 +263,7 @@ class EntityManager
 
             // Check if model is sortable and add sorting route if needed.
             if (app()->make($config['model'])->isSortable()) {
-                \Route::get($resource.'/sort/{column}', $config['controller'].'@sort')->name($resource.'.sort');
+                \Route::get($resource.'/filter/{column}', $config['controller'].'@filter')->name($resource.'.filter');
             }
 
             $this->addRoutes($resource, build_resource_backport($resource));

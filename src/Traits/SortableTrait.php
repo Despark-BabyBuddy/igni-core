@@ -13,6 +13,27 @@ trait SortableTrait
     use Sortable;
 
     /**
+     * Adds position to model on creating event.
+     */
+    public static function bootSortableTrait()
+    {
+        static::creating(
+            function ($model) {
+                /* @var Model $model */
+                $sortableFields = $model->getSortableFieldsKeys();
+                $query = static::applySortableGroup(static::on($model->getConnectionName()), $model);
+
+                foreach ($sortableFields as $sortableField) {
+                    // only automatically calculate next position with max+1 when a position has not been set already
+                    if ($model->$sortableField === null || $model->$sortableField === 1) {
+                        $model->setAttribute($sortableField, $query->max($sortableField) + 1);
+                    }
+                }
+            }
+        );
+    }
+
+    /**
      * Get sortable fields
      *
      * @return array
@@ -20,6 +41,16 @@ trait SortableTrait
     public function getSortableFields(): array
     {
         return isset($this->sortableFields) ? $this->sortableFields : [];
+    }
+
+    /**
+     * Get the keys from the sortable fields
+     *
+     * @return array
+     */
+    public function getSortableFieldsKeys(): array
+    {
+        return array_keys($this->getSortableFields());
     }
 
     /**

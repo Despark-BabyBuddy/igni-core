@@ -64,6 +64,11 @@ abstract class AdminController extends BaseController
     protected $resourceConfig;
 
     /**
+     * @var string
+     */
+    protected $sortFilter;
+
+    /**
      * AdminController constructor.
      */
     public function __construct(EntityManager $entityManager)
@@ -279,6 +284,10 @@ abstract class AdminController extends BaseController
         $buttons = [];
         $queryString = str_replace(request()->url(), '', request()->fullURL());
 
+        if ($this->model->isSortable()) {
+            $buttons[] = '<span class="btn btn-warning sortable-handle"><span class="fa fa-arrows"></span></span>';
+        }
+
         if (isset($this->viewData['editRoute'])) {
             $buttons[] = '<a href="'.route($this->viewData['editRoute'],
                     ['id' => $record->id]).$queryString.'" class="btn btn-primary">'.trans('ignicms::admin.edit').'</a>';
@@ -369,6 +378,19 @@ abstract class AdminController extends BaseController
         return $this;
     }
 
+    public function setSortFilter($sortFilter)
+    {
+        if (in_array($sortFilter, $this->model->getSortableFieldsKeys())) {
+            $this->sortFilter = $sortFilter;
+            $this->viewData['sortFilter'] = $this->sortFilter;
+        } else {
+            // TODO: Maybe a custom exception will be better.
+            throw new \Exception('Filter '.$sortFilter.' not found for this model.');
+        }
+
+        return $this;
+    }
+
     /**
      * Prepares controller actions.
      *
@@ -383,7 +405,7 @@ abstract class AdminController extends BaseController
         ];
 
         if ($this->model->isSortable()) {
-            $actions[] = 'sort';
+            $actions[] = 'filter';
         }
 
         $id = $this->resourceConfig['id'];
@@ -486,28 +508,62 @@ abstract class AdminController extends BaseController
     }
 
     /**
-     * Sort method
+     * Get / modify filters from the model
+     *
+     * @return array
+     */
+    protected function getFilters(): array
+    {
+        $customFilters = [];
+        $modelFilters = $this->model->isSortable() ? $this->model->getSortableFields() : [];
+
+        $filters = array_merge($customFilters, $modelFilters);
+
+        return $filters;
+    }
+
+    /**
+     * Prepare filter query
+     *
+     * @param  Builder $queryBuilder
+     * @param  string  $sortFilter
+     * @param  string  $order
+     * @return Builder
+     */
+    protected function prepareFilterQuery(Builder $queryBuilder, string $sortFilter, string $order): Builder
+    {
+        $queryBuilder = $queryBuilder
+                        ->where('type', str_replace('sort_position', 'buddy', $sortFilter))
+                        ->orWhere('type', null)
+                        ->orderBy($sortFilter, $order);
+        return $queryBuilder;
+    }
+
+    /**
+     * Filter method
      * TODO: Probably figure out a better place for this.
      *
      * @return \Illuminate\Http\JsonResponse|View
      */
-    public function sort($sortFilter)
+    public function filter($sortFilter, $order = 'asc')
     {
-        if (in_array($sortFilter, $this->model->getSortableFields())) {
+        try {
+            $this->setSortFilter($sortFilter);
+
             $request = app(Request::class);
             if ($request->ajax()) {
                 $dataTableQuery = $this->prepareModelQuery($request);
-                $dataTableQuery = $dataTableQuery->orderBy($sortFilter, 'asc');
+                $dataTableQuery = $this->prepareFilterQuery($dataTableQuery, $sortFilter, $order);
                 return $this->buildDataTable($dataTableQuery);
             }
 
             // TODO refactor dataTablesAjaxUrl method, so we don't do things like this.
-            $this->viewData['dataTablesAjaxUrl'] = route($this->getResourceConfig()['id'].'.sort', $sortFilter);
+            $this->viewData['dataTablesAjaxUrl'] = route($this->getResourceConfig()['id'].'.filter', $sortFilter);
             $this->viewData['model'] = $this->model;
             $this->viewData['sortFilter'] = $sortFilter;
             return view($this->getListView(), $this->viewData);
-        } else {
-            return abort(404);
+        } catch (\Exception $exception) {
+            abort(404, $exception->getMessage());
         }
     }
 }

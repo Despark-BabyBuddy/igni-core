@@ -14,13 +14,11 @@
                             {{ ucwords(str_replace('_', ' ', $key)).' ('.$value.')' }}
                         @endforeach
                     @endif
-
                     @if ($model->isSortable())
                         <div class="pull-right">
-                            Sort:
-                            <a href="{{ route($resourceConfig['id'].'.index') }}" class="label {{ !isset($sortFilter) ? 'label-success' : 'label-default' }}">None</a>
-                            @foreach ($model->getSortableFields() as $field)
-                                <a href="{{ route($sortRoute, $field) }}" class="label {{ isset($sortFilter) && $sortFilter == $field ? 'label-success' : 'label-default' }}">{{ $field }}</a>
+                            Filter:
+                            @foreach ($model->getSortableFields() as $key => $label)
+                                <a href="{{ route($filterRoute, $key) }}" class="label {{ isset($sortFilter) && $sortFilter == $key ? 'label-success' : 'label-default' }}">{{ $label }}</a>
                             @endforeach
                         </div>
                     @endif
@@ -181,7 +179,7 @@
         pageLength: {{ config('ignicms.paginateLimit') }},
         lengthChange: false,
         searching: true,
-        ordering: isSortable !== false,
+        ordering: false,
         info: false,
         autoWidth: true,
         processing: true,
@@ -194,6 +192,7 @@
                 @foreach ($controller->getDataTableColumns() as $data)
             {
                 data: '{{ $data['data'] }}',
+                searchable: false,
                 name: '{{ $data['name'] }}'
                 @if(isset($data['title'])), title: '{{$data['title']}}'@endif,
                 defaultContent: "",

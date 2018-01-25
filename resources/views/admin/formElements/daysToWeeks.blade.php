@@ -1,7 +1,12 @@
-<?php
-    $week = floor($field->getValue() / 7);
-    $day = $field->getValue() - ($week * 7);
-?>
+@php
+    if ($field->getValue()) {
+        $week = floor($field->getValue() / 7);
+        $day = $field->getValue() - ($week * 7);
+    } else {
+        $week = 0;
+        $day = 0;
+    }
+@endphp
 <div class="form-group {{ $errors->has($elementName) ? 'has-error' : '' }}">
    <b> {!! Form::label($elementName, $field->getLabel()) !!}</b>
     <br>
