@@ -14,7 +14,7 @@ class AutosortCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'igni:autosort {model : FQN with reversed slashes for the model: ex: /App/Model/Post} {field : Field from the sortable fields which to be used.}';
+    protected $signature = 'igni:autosort {model : FQN with reversed slashes for the model: ex: /App/Models/Post} {field : Field from the sortable fields which to be used.}';
     /**
      * The console command description.
      *
@@ -112,7 +112,7 @@ class AutosortCommand extends Command
      */
     private function getSortableFields(): array
     {
-        return $this->model->getSortableFields();
+        return $this->model->getSortableFieldsKeys();
     }
 
     /**
@@ -153,9 +153,9 @@ class AutosortCommand extends Command
     {
         foreach ($data as $index => $item) {
             // dd($item);
-            // $item->{$this->sortableField} = $index;
+            $item->{$this->sortableField} = $index;
             $item->save();
-            // $this->info('Index: '.$index.' Field:'.$item->{$this->sortableField});
+            $this->info('ID: '.$item->id.' Index: '.$index.' Field:'.$item->{$this->sortableField});
             $progressBar->advance();
         }
     }
