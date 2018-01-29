@@ -100,7 +100,7 @@
               type: 'button',
               stateSelector:"a[href]",
               onclick: function (e) {
-                var node = tinyMCE.activeEditor.selection.getNode();
+                var node = editor.selection.getNode();
                 var href = node.href;
                 var id = null;
                 if(href) {
@@ -116,7 +116,7 @@
                     body: [{
                         type: 'textbox',
                         name: 'title',
-                        value: node.innerText,
+                        value: editor.selection.getContent(),
                         multiline: true,
                         minWidth: 700,
                         minHeight: 50,
@@ -154,7 +154,7 @@
                         type: 'checkbox',
                         text: 'Insert thumbnail',
                         name: 'videosvideo',
-                        classes: "insert_thumb selector",
+                        classes: "insert_thumb",
                         hidden: url == 'applink://videos?video=' ? false : true,
                         values : [],
                         value: id
@@ -226,9 +226,7 @@
                         var output = '<a href="' +  link + '"  class="in-app-link"';
                         if (weblink) output = output + " data-weblink='" + weblink + '"';
                         output = output + "'>" + html_content + '</a>'
-                        //alert(output);//return false;
 
-                        node.remove();
                         tinyMCE.activeEditor.selection.setContent(output);
                     }
                 });
