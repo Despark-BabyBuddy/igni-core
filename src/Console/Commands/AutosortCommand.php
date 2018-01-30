@@ -152,10 +152,8 @@ class AutosortCommand extends Command
     private function sortData(Collection $data, ProgressBar $progressBar): void
     {
         foreach ($data as $index => $item) {
-            // dd($item);
             $item->{$this->sortableField} = $index;
             $item->save();
-            $this->info('ID: '.$item->id.' Index: '.$index.' Field:'.$item->{$this->sortableField});
             $progressBar->advance();
         }
     }

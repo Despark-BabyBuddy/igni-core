@@ -128,5 +128,5 @@ trait SortableTrait
      *
      * @return \Illuminate\Database\Query\Builder
      */
-    abstract public function newQuery($excludeDeleted = true);
+    abstract public function newQuery();
 }
