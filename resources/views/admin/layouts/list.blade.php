@@ -158,7 +158,9 @@
                 targets: "no-sort",
                 orderable: false,
                 searchable: true,
+                @if ($model->isSortable() && isset($sortFilter))
                 className: 'sortable-handle', 'targets': [0]
+                @endif
             }
         ],
         aaSorting: [],
