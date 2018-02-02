@@ -232,6 +232,9 @@
 
         // Sortable
         var changePosition = function (requestData) {
+            var $body = $('body');
+            $body.css('cursor', 'progress');
+            $('body').css('cursor', 'progress');
             $.ajax({
                 url: '{{ route('sort.post') }}',
                 type: 'POST',
@@ -245,6 +248,9 @@
                 },
                 error: function (e) {
                     console.log('Something went wrong! Error(' + e.status + '): ' + e.statusText);
+                },
+                complete: function (e) {
+                    $body.css('cursor', 'auto');
                 }
             });
         };

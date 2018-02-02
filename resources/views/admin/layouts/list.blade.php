@@ -205,24 +205,30 @@
             $tableSortable.addClass('sortable')
                 .attr('data-entityname', '{{ $controller->getResourceConfig()['id'] }}');
 
-            // Sortable
-            var changePosition = function (requestData) {
-                $.ajax({
-                    url: '{{ route('sort.post') }}',
-                    type: 'POST',
-                    data: requestData,
-                    success: function (data) {
-                        if (data.success) {
-                            console.log('Sort: success!');
-                        } else {
-                            console.log(data.errors);
+                // Sortable
+                var changePosition = function (requestData) {
+                    var $body = $('body');
+                    $body.css('cursor', 'progress');
+                    $('body').css('cursor', 'progress');
+                    $.ajax({
+                        url: '{{ route('sort.post') }}',
+                        type: 'POST',
+                        data: requestData,
+                        success: function (data) {
+                            if (data.success) {
+                                console.log('Sort: success!');
+                            } else {
+                                console.log(data.errors);
+                            }
+                        },
+                        error: function (e) {
+                            console.log('Something went wrong! Error(' + e.status + '): ' + e.statusText);
+                        },
+                        complete: function (e) {
+                            $body.css('cursor', 'auto');
                         }
-                    },
-                    error: function (e) {
-                        console.log('Something went wrong! Error(' + e.status + '): ' + e.statusText);
-                    }
-                });
-            };
+                    });
+                };
 
             var $sortableTable = $('.sortable');
             if ($sortableTable.length > 0) {
