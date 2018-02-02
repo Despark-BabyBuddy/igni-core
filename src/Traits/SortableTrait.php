@@ -122,4 +122,11 @@ trait SortableTrait
 
         return $query->where($sortableField, '>', $left)->where($sortableField, '<', $right);
     }
+
+    /**
+     * Get a new query builder for the model's table.
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
+    abstract public function newQuery($excludeDeleted = true);
 }
