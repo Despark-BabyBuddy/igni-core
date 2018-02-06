@@ -141,18 +141,18 @@ class SidebarItem
      */
     public function getHref()
     {
-        if (isset($this->link)) {   
-            $exploded = explode(', ', $this->link);        
-            if (! isset($exploded[1])) {       
-               return route($this->link);     
-            } else {       
-                return route($exploded[0], $exploded[1]);      
-            }      
+        if (isset($this->link)) {
+            $exploded = explode(', ', $this->link);
+            if (! isset($exploded[1])) {
+               return route($this->link);
+            } else {
+                return route($exploded[0], $exploded[1]);
+            }
         } else if (isset($this->custom_link)) {
 
-            return Txt::site($this->custom_link);
-        }   
-       
+            return url($this->custom_link);
+        }
+
         return '#';
     }
 
