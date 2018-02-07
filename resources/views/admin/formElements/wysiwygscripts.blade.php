@@ -1,4 +1,28 @@
+@php
+    $videos = \Despark\Model\Video::all();
+@endphp
+
 <script type="text/javascript">
+    var videosList = [
+        @foreach ($videos as $videoItem)
+            { id: {{ $videoItem->id }}, text: '{{ $videoItem->title }}' },
+        @endforeach
+    ];
+
+    function select2Initialize(inputID, data) {
+        $('#' + inputID).select2({
+            containerCssClass: 'mce-selectbox mce-abs-layout-item mce-last managed-window-select2',
+            dropdownCssClass: 'select2-dropdown-data-container',
+            data: data
+        })
+        .on('select2:open', function (event) {
+            var $select = $('span.managed-window-select2');
+            var $options = $('.select2-dropdown-data-container');
+            $options.css('left', $select.css('left'));
+            $options.css('top', parseInt($select.css('top')) + 28);
+        });
+    }
+
     function merge_options(obj1, obj2) {
         var obj3 = {};
         for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
@@ -166,6 +190,16 @@
                                 updateFields(win, this);
                         },
                     },{
+                        type: 'selectbox',
+                        name: 'videosvideo',
+                        id: 'searchVideos',
+                        classes: "selector searchSelect",
+                        hidden: url == 'applink://videos?video=' ? false : true,
+                        value: id,
+                        onPostRender: function (event) {
+                            select2Initialize(this._id, videosList);
+                        }
+                    },{
                         type: 'listbox',
                         name: 'videosvideo',
                         classes: "selector",
@@ -183,7 +217,7 @@
                         type: 'checkbox',
                         text: 'Insert thumbnail',
                         name: 'videosvideo',
-                        classes: "insert_thumb",
+                        classes: "insert_thumb selector",
                         hidden: url == 'applink://videos?video=' ? false : true,
                         values : [],
                         value: id
@@ -274,7 +308,18 @@
         alert(this.val());
     });
 
-
     tinymce.init(merge_options(defaultOptions, desparkOptions));
 
 </script>
+<style>
+    span.managed-window-select2 {
+        left: 15px;
+        top: 115px;
+        width: 700px;
+        height: 15px;
+    }
+
+    span.select2-dropdown-data-container {
+        z-index: 99999;
+    }
+</style>
