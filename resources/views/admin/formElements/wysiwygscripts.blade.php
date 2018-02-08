@@ -1,11 +1,25 @@
 @php
     $videos = \Despark\Model\Video::all();
+    $questions = \Despark\Model\KnowledgeBase::all();
+    $words = \Despark\Model\Word::all();
 @endphp
 
 <script type="text/javascript">
     var videosList = [
         @foreach ($videos as $videoItem)
             { id: {{ $videoItem->id }}, text: '{{ $videoItem->title }}' },
+        @endforeach
+    ];
+
+    var questionsList = [
+        @foreach ($questions as $questionItem)
+            { id: {{ $questionItem->id }}, text: '{{ $questionItem->question }}', data_thumb: 'ds' },
+        @endforeach
+    ];
+
+    var wordsList = [
+        @foreach ($words as $wordItem)
+            { id: {{ $wordItem->id }}, text: '{{ $wordItem->name }}' },
         @endforeach
     ];
 
@@ -118,11 +132,19 @@
 
             function updateFields(win, field) {
                     win.find('.selector').hide();
+                    $('.mce-window .select2').hide();
                     var s = field.value();//
                     s = s.replace("applink://", "");
                     s = s.replace("?", "");
                     s = s.replace("=", "");
-                    win.find('#' + s ).show();
+
+                    var newInput = win.find('#' + s );
+                    newInput.show();
+
+                    if (newInput.hasClass('searchSelect')) {
+                        var inputID = newInput[0]._id;;
+                        $('#' + inputID).next().show();
+                    }
              }
 
             editor.addButton('constants', {
@@ -198,21 +220,8 @@
                         value: id,
                         onPostRender: function (event) {
                             select2Initialize(this._id, videosList);
+                            $('#' + this._id).next().hide();
                         }
-                    },{
-                        type: 'listbox',
-                        name: 'videosvideo',
-                        classes: "selector",
-                        hidden: url == 'applink://videos?video=' ? false : true,
-                        values : [
-                        <?php
-
-                                $sections = \Despark\Model\Video::all();
-                                foreach($sections as $v)
-                                    echo '{ text: "' . addslashes($v->title) .'", value: "' . $v->id . '" },';
-                        ?>
-                        ],
-                        value: id
                     },{
                         type: 'checkbox',
                         text: 'Insert thumbnail',
@@ -222,35 +231,27 @@
                         values : [],
                         value: id
                     },{
-                        type: 'listbox',
+                        type: 'selectbox',
                         name: 'ask_mequestion',
-                        classes: "selector",
+                        id: 'searchQuestions',
+                        classes: "selector searchSelect",
                         hidden: url == 'applink://ask_me?question=' ? false : true,
-                        values : [
-                        <?php
-
-                                $sections = \Despark\Model\KnowledgeBase::all();
-                                foreach($sections as $v)
-                                    echo '{ text: "' . addslashes($v->question) .'", value: "' . $v->id . '", data_thumb: "ds"},';
-                        ?>
-                        ],
                         value: id,
+                        onPostRender: function (event) {
+                            select2Initialize(this._id, questionsList);
+                            $('#' + this._id).next().hide();
+                        }
                     },{
-                        type: 'listbox',
+                        type: 'selectbox',
                         name: 'what_does_that_meanword',
-                        classes: "selector",
+                        id: 'searchWords',
+                        classes: "selector searchSelect",
                         hidden: url == 'applink://what_does_that_mean?word=' ? false : true,
-                        values : [
-                        <?php
-
-                                $sections = \Despark\Model\Word::all();
-
-
-                                foreach($sections as $v)
-                                    echo '{ text: "' . addslashes($v->name) .'", value: "' . $v->id . '" },';
-                        ?>
-                        ],
                         value: id,
+                        onPostRender: function (event) {
+                            select2Initialize(this._id, questionsList);
+                            $('#' + this._id).next().hide();
+                        }
                     },
                     ],
                     onInit: function() {
@@ -275,13 +276,24 @@
                         var insert_thumb = win.find(".insert_thumb:visible").value();
                         var html_content = e.data.title;
 
-                        var subitem = subinput.value();
+                        var subitem, subInputText;
+
+                        if (subinput.hasClass('searchSelect')) {
+                            var selectID = subinput[0]._id;
+                            var $input = $('#' + selectID + ' option:selected');
+                            subitem = $input.val();
+                            subInputText = $input.text();
+                        } else {
+                            subitem = subinput.value();
+                            subInputText = subinput.text();
+                        }
+
                         var link = e.data.section;
 
                         if(weblinks[link]) var weblink = weblinks[link];
-                        if(subinput.text()) weblink = weblink + subinput.text();
+                        if(subInputText) weblink = weblink + subInputText;
 
-                        if(insert_thumb) html_content = '<img  class="video-thumb" style="width: 300px!important" src="' + thumbnails[subinput.value()] + '">';
+                        if(insert_thumb) html_content = '<img  class="video-thumb" style="width: 300px!important" src="' + thumbnails[subitem] + '">';
 
                         if (subitem) link = link + subitem;
                         if(link == 'applink://remember_to_ask?action=add&question=')
@@ -312,11 +324,20 @@
 
 </script>
 <style>
+    select.mce-searchSelect {
+        height: 30px !important;
+    }
+
     span.managed-window-select2 {
-        left: 15px;
-        top: 115px;
         width: 700px;
         height: 15px;
+        padding: 4px 8px !important;
+        left: 15px;
+        top: 115px;
+    }
+
+    span.managed-window-select2 span.select2-selection__rendered {
+        padding: 0px !important;
     }
 
     span.select2-dropdown-data-container {
