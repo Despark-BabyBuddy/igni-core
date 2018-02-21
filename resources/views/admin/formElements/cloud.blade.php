@@ -1,6 +1,6 @@
-<?php 
-    //dd($field->getFieldName());     
-    $values = $field->getValue(); 
+<?php
+    //dd($field->getFieldName());
+    $values = $field->getValue();
 
 ?>
 <div class="form-group {{ $errors->has($elementName) ? 'has-error' : '' }}" id="cloud_{{ $field->getFieldName() }}">
@@ -11,13 +11,13 @@
     @foreach( $values as $point )
         <li>
             <a href="#">{{  $point-> name }}</a>
-            {!! Form::hidden("title", $point->id, $field->getChildrenAttributes($loop->iteration, "id", Array(), $field->getFieldName() )) !!}            
+            {!! Form::hidden("title", $point->id, $field->getChildrenAttributes($loop->iteration, "id", Array(), $field->getFieldName().'_existing' )) !!}            
 
-            {!! Form::hidden("title", $point->name, $field->getChildrenAttributes($loop->iteration, "name", Array(), $field->getFieldName() )) !!}
+            {!! Form::hidden("title", $point->name, $field->getChildrenAttributes($loop->iteration, "name", Array(), $field->getFieldName().'_existing' )) !!}
         </li>
     @endforeach
     @endif
-    </ul>   
+    </ul>
 
     @if($field->getHelp())
         <p class="help-text">
@@ -60,7 +60,7 @@
             tag.append(name_input);
 
             list.append(tag);
-            
+
             //list.append("<li><a href='#'>" + val.val() + "</a></li>");
             val.val("");
             return false;
