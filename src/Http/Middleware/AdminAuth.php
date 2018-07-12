@@ -21,7 +21,7 @@ class AdminAuth
             return $this->unauthenticatedResponse($request);
         }
 
-        if (!Auth::guard($guard)->user()) {
+        if (!Auth::guard($guard)->user()->hasRole('admin')) {
             return $this->unauthenticatedResponse($request);
         }
 
