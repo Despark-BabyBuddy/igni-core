@@ -1,12 +1,11 @@
-<?php 
-    
+<?php
+
     $children = $field->getOptions();
-    $children = $children['children']; 
+    $children = $children['children'];
 
     $default = $field->parent;
 
     $ajax_link = \Despark\Helpers\Txt::site('/admin/dailyinfo/newversion');
-
 ?>
 
 
@@ -25,7 +24,7 @@
 
     @if($default->id())
         <li role="presentation"><a data-toggle="modal" data-target="#myModal" id="add" href="#default" aria-controls="home" role="tab" data-toggle="tab">Add new version</a></li>
-    @endif    
+    @endif
   </ul>
 
 <!-- Tab panes -->
@@ -35,7 +34,7 @@
             {!! Form::label("title") !!}
             {!! Form::text("title", $default->title, $field->getAttributes()) !!}
         </div>
-    
+
 
         <div class="form-group {{ $errors->has($fieldName) ? 'has-error' : '' }}">
             {!! Form::label("Content") !!}
@@ -47,7 +46,7 @@
             <div class="text-red">
                 {{ join($errors->get($fieldName), '<br />') }}
             </div>
-        </div>       
+        </div>
 
     </div>
     @if($children)
@@ -55,14 +54,14 @@
         <div role="tabpanel" class="tab-pane" id="version_{{ $child->id }}">
             {!! Form::hidden("title", $child->id, $field->getChildrenAttributes($loop->iteration, "id")) !!}
             <div class="form-group {{ $errors->has($elementName) ? 'has-error' : '' }}">
-                {!! Form::label("title") !!} 
+                {!! Form::label("title") !!}
                 {!! Form::text("title", $child->title, $field->getChildrenAttributes($loop->iteration, "title")) !!}
             </div>
-        
+
 
             <div class="form-group {{ $errors->has($fieldName) ? 'has-error' : '' }}">
                 {!! Form::label("Content") !!}
-                {!! Form::textarea("content", $child->content, 
+                {!! Form::textarea("content", $child->content,
                     $field->getChildrenAttributes($loop->iteration, "content", array("wysiwyg"))) !!}
                 <div class="text-red">
                     {{ join($errors->get($fieldName), '<br />') }}
@@ -87,16 +86,28 @@
             <h4 class="modal-title">Add new version</h4>
         </div>
         <div class="modal-body">
-                    <div class="control-group control-group-input">
-                        <label class="control-label" for="partnership">I'm</label>                  
-                            <div class="controls">
-                                <select class="form-control" id="partnership">
-                                    <option value="with_the_dad">With the dad</option>
-                                    <option value="with_a_partner">With a partner</option>
-                                    <option value="on_my_own">On my own</option>
-                                </select>                  
-                            </div>
-                    </div>
+            <div class="control-group control-group-input">
+                <label class="control-label" for="partnership">I'm</label>
+                <div class="controls">
+                    <select class="form-control" id="partnership">
+                        <option value="with_the_dad">With the dad</option>
+                        <option value="with_a_partner">With a partner</option>
+                        <option value="on_my_own">On my own</option>
+                    </select>
+                </div>
+            </div>
+
+            @if($default->type == 'baby_buddy')
+            <div class="control-group control-group-input">
+                <label class="control-label" for="breastfeeding">I'm</label>
+                <div class="controls">
+                    <select class="form-control" id="breastfeeding">
+                        <option value="breastfeeding">Breastfeeding</option>
+                        <option value="not_breastfeeding">Not breastfeeding</option>
+                    </select>
+                </div>
+            </div>
+            @endif
         </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" id="submit_version">Add</button>
@@ -109,6 +120,33 @@
 
 
 @push('additionalScripts')
+    <script type="text/javascript">
+    $("#submit_version").click(function() {
+        $.get(
+            "{{ $ajax_link }}",
+            {
+                partnership: $("#partnership").val(),
+                breastfeeding: ($("#breastfeeding").val() || null),
+                type: "{{ $default->type }}",
+                id: "{{ $default->id()  }}"
+            },
+            function(d) {
+                if(d.success == 'false') {
+                    alert(d.message);
+                    return;
+                }
+                $("#tabs_navigation li").removeClass("active");
+                $("#tab_content div").removeClass("active");
+                $("#tabs_navigation li:last").before('<li role="presentation" class="active"><a href="#new_content" aria-controls="home" role="tab" data-toggle="tab">' + d.type + '</a></li>');
+                $("#tab_content").append(d.add);
+                tinymce.init(merge_options(defaultOptions, additionalOptions));
+                $("#myModal").modal("toggle");
+            },
+            "JSON"
+        );
+    });
+    </script>
+
 <script src="{{ asset('/admin_assets/plugins/tinymce/tinymce.min.js') }}"></script>
  @include('ignicms::admin.formElements.wysiwygscripts');
 @endpush
