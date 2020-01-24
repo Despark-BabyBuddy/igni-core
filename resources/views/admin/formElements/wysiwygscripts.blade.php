@@ -37,6 +37,30 @@
         });
     }
 
+    // From webapp to keep consistency
+    function convertToSlug(Text) {
+    	return Text.toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '-');
+    }
+
+    function select2Slug(inputID, data, includeIdSuffix = true) {
+        $('#' + inputID).select2({
+            containerCssClass: 'mce-selectbox mce-abs-layout-item mce-last managed-window-select2',
+            dropdownCssClass: 'select2-dropdown-data-container',
+            data: data,
+            templateSelection: function (data, container) {
+                var slug = convertToSlug(data.text) + (includeIdSuffix ? '-' + data.id : '');
+                $(data.element).attr('data-slug', slug);
+                return data.text;
+            }
+        })
+        .on('select2:open', function (event) {
+            var $select = $('span.managed-window-select2');
+            var $options = $('.select2-dropdown-data-container');
+            $options.css('left', $select.css('left'));
+            $options.css('top', parseInt($select.css('top')) + 28);
+        });
+    }
+
     function merge_options(obj1, obj2) {
         var obj3 = {};
         for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
@@ -219,7 +243,7 @@
                         hidden: url == 'applink://videos?video=' ? false : true,
                         value: id,
                         onPostRender: function (event) {
-                            select2Initialize(this._id, videosList);
+                            select2Slug(this._id, videosList, true);
                             $('#' + this._id).next().hide();
                         }
                     },{
@@ -238,7 +262,7 @@
                         hidden: url == 'applink://ask_me?question=' ? false : true,
                         value: id,
                         onPostRender: function (event) {
-                            select2Initialize(this._id, questionsList);
+                            select2Slug(this._id, questionsList, true);
                             $('#' + this._id).next().hide();
                         }
                     },{
@@ -249,7 +273,7 @@
                         hidden: url == 'applink://what_does_that_mean?word=' ? false : true,
                         value: id,
                         onPostRender: function (event) {
-                            select2Initialize(this._id, questionsList);
+                            select2Slug(this._id, wordsList, false);
                             $('#' + this._id).next().hide();
                         }
                     },
@@ -282,7 +306,12 @@
                             var selectID = subinput[0]._id;
                             var $input = $('#' + selectID + ' option:selected');
                             subitem = $input.val();
-                            subInputText = $input.text();
+
+                            if ($input.data('slug')) {
+                                subInputText = $input.data('slug');
+                            } else {
+                                subInputText = $input.text();
+                            }
                         } else {
                             subitem = subinput.value();
                             subInputText = subinput.text();
@@ -290,16 +319,33 @@
 
                         var link = e.data.section;
 
-                        if(weblinks[link]) var weblink = weblinks[link];
-                        if(subInputText) weblink = weblink + subInputText;
 
-                        if(insert_thumb) html_content = '<img  class="video-thumb" style="width: 300px!important" src="' + thumbnails[subitem] + '">';
+                        if (weblinks[link]) {
+                            var weblink = weblinks[link];
+                        }
 
-                        if (subitem) link = link + subitem;
-                        if(link == 'applink://remember_to_ask?action=add&question=')
-                                link = link + e.data.title;
+                        if (subInputText) {
+                            weblink = weblink + subInputText;
+                        }
+
+                        if (insert_thumb) {
+                            html_content = '<img  class="video-thumb" style="width: 300px!important" src="' + thumbnails[subitem] + '">';
+                        }
+
+                        if (subitem) {
+                            link = link + subitem;
+                        }
+
+                        if(link == 'applink://remember_to_ask?action=add&question=') {
+                            link = link + e.data.title;
+                        }
+
                         var output = '<a href="' +  link + '"  class="in-app-link"';
-                        if (weblink) output = output + " data-weblink='" + weblink + '"';
+
+                        if (weblink) {
+                            output = output + 'data-weblink="' + weblink + '"';
+                        }
+
                         output = output + "'>" + html_content + '</a>'
 
                         tinyMCE.activeEditor.selection.setContent(output);
